@@ -9,16 +9,33 @@ var _ = require('lodash');
 
 var app = express();
 
-app.use('/', function(req, res, next){
-    var version = req.params.version;
-    if(!version) {
-        version = 'v1.0';
+var getVersion4User = function(userId) {
+    var map = {
+        '1016': 'v1.0',
+        '1017': 'v1.1',
+        '1018': 'v1.0'
+    };
+    return map[userId] ? map[userId] : 'v1.0';
+}
+
+var mainRouter = express.Router();
+mainRouter.get('/:userId', function(req, res, next) {
+    var hasSlash = req.url.charAt(req.url.length - 1) === '/';
+    if(!hasSlash) {
+        res.redirect(req.url + '/');
+    } else {
+        next();
     }
+});
+mainRouter.get('/:userId/*', function(req, res, next) {
+    var userId = req.params.userId;
+    var version = getVersion4User(userId);
     if(req.url.indexOf('public') <= -1) {
-        req.url = req.path + 'releases/' + version;
+        req.url = '/releases/' + version + req.url;
     }
     next();
 });
+app.use('/', mainRouter);
 
 app.use(favicon(path.join(__dirname, 'public/favicon.ico')));
 if (app.get('env') === 'development') {
@@ -35,18 +52,19 @@ app.use(cookieParser());
 app.set('views', __dirname);
 app.set('view engine', 'hjs');
 
-var releasesDir = path.join(__dirname, 'releases');
+var releasesDirName = 'releases';
+var releasesDir = path.join(__dirname, releasesDirName);
 var releases = fs.readdirSync(releasesDir).filter(function(file) {
     return fs.statSync(path.join(releasesDir, file)).isDirectory();
 });
 _.each(releases, function(version) {
-    var virtualApp = require('./releases/' + version + '/index');
-    var prefix = 'releases/' + version;
+    var virtualApp = require('./' + releasesDirName + '/' + version + '/index');
+    var prefix = releasesDirName + '/' + version;
     virtualApp.setPrefix(prefix);
     var routes = virtualApp.getRoutes();
     routes.setup();
+    app.use(routes.getStaticPath(''), express.static(path.join(__dirname, releasesDirName, version, 'public')));
     app.use('/', routes.getRouter());
-    app.use(routes.getStaticPath(''), express.static(path.join(__dirname, 'releases', version, 'public')));
 });
 
 app.use(function(req, res, next) {
