@@ -56,10 +56,10 @@ _.each(releases, function(version) {
     var virtualApp = require(path.join(releasesDir, version, 'index'));
     var prefix = [releasesDirName, version].join('/');
     virtualApp.setPrefix(prefix);
-    var routes = virtualApp.getRoutes();
-    routes.setup();
-    app.use(routes.getStaticPath(''), express.static(path.join(releasesDir, version, 'public')));
-    app.use('/' + [releasesDirName, version].join('/'), routes.getRouter());
+    var rootRouter = virtualApp.getRootRouter();
+    rootRouter.setup(app);
+    app.use(rootRouter.getStaticPath(''), express.static(path.join(releasesDir, version, 'public')));
+    app.use('/' + [releasesDirName, version].join('/'), rootRouter.getRouter());
 });
 
 app.use(slash());
