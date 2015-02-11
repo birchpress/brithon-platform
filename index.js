@@ -3,11 +3,10 @@ var slash = require('express-slash');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
 var fs = require('fs');
 var _ = require('lodash');
 
+// TODO: placeholder
 var getVersion4User = function(userId) {
     var map = {
         '1016': 'v1.0',
@@ -21,45 +20,40 @@ var app = express();
 // app.enable('strict routing');
 
 if (app.get('env') === 'development') {
-  app.use(logger('dev'));
+    app.use(logger('dev'));
 } else {
-  app.use(logger('combined'));
+    app.use(logger('combined'));
 }
 
 app.use(favicon(path.join(__dirname, 'public/favicon.ico')));
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-
-app.set('views', __dirname);
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hjs');
 
 var releasesDirName = 'releases';
-
 var mainRouter = express.Router();
+
 mainRouter.all('/:userId/*', function(req, res, next) {
     var userId = req.params.userId;
     var version = getVersion4User(userId);
-    if (req.url.indexOf('public') <= -1) {
-        req.url = '/' + [releasesDirName, version, req.url].join('/');
+
+    if (req.params.userId !== releasesDirName) {
+        req.url = path.join('/', releasesDirName, version, req.url);
     }
+
     next();
 });
-app.use('/', mainRouter);
+
+app.use(mainRouter);
 
 var releasesDir = path.join(__dirname, releasesDirName);
 var releases = fs.readdirSync(releasesDir).filter(function(file) {
     return fs.statSync(path.join(releasesDir, file)).isDirectory();
 });
+
 _.each(releases, function(version) {
-    var virtualApp = require(path.join(releasesDir, version, 'index'));
-    var prefix = [releasesDirName, version].join('/');
-    virtualApp.setPrefix(prefix);
-    var rootRouter = virtualApp.getRootRouter();
-    rootRouter.setup(app);
-    app.use(rootRouter.getStaticPath(''), express.static(path.join(releasesDir, version, 'public')));
-    app.use('/' + [releasesDirName, version].join('/'), rootRouter.getRouter());
+    var vApp = require(path.join(releasesDir, version, 'index'));
+    app.use(path.join('/', releasesDirName, version), vApp);
 });
 
 app.use(slash());
