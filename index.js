@@ -33,7 +33,7 @@ app.set('view engine', 'hjs');
 var releasesDirName = 'releases';
 var mainRouter = express.Router();
 
-mainRouter.all('/:userId/*', function(req, res, next) {
+mainRouter.all('/:userId(\\d+)/*', function(req, res, next) {
     var userId = req.params.userId;
     var version = getVersion4User(userId);
 

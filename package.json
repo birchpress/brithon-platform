@@ -18,7 +18,9 @@
     "morgan": "^1.5.1",
     "mori": "^0.3.2",
     "serve-favicon": "^2.2.0",
-    "hjs": "0.0.6"
+    "hjs": "0.0.6",
+    "express-myconnection": "^1.0.4",
+    "mysql": "^2.5.4"
   },
   "devDependencies": {
     "jsonfile": "^2.0.0"
