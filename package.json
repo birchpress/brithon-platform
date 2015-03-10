@@ -29,6 +29,7 @@
     "start": "NODE_ENV=production node ./bin/www",
     "dev": "node ./bin/www"
   },
+  "private": true,
   "author": "Brithon Inc.",
   "license": "Commercial"
 }
