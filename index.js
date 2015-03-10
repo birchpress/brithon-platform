@@ -1,9 +1,10 @@
+'use strict';
+
 var express = require('express');
 var slash = require('express-slash');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
-var fs = require('fs');
 var _ = require('lodash');
 
 // TODO: placeholder
@@ -52,13 +53,12 @@ _.forEach(vApps, function(instance, mountPath) {
 
 app.use(slash());
 
+// error handlers
 app.use(function(req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
     next(err);
 });
-
-// error handlers
 
 // development error handler
 // will print stacktrace

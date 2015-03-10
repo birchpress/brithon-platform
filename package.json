@@ -20,7 +20,9 @@
     "serve-favicon": "^2.2.0",
     "hjs": "0.0.6",
     "express-myconnection": "^1.0.4",
-    "mysql": "^2.5.4"
+    "mysql": "^2.5.4",
+    "convict": "^0.6.1",
+    "react-immutable-render-mixin": "^0.8.0"
   },
   "devDependencies": {
     "jsonfile": "^2.0.0"
