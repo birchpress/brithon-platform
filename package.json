@@ -7,6 +7,7 @@
     "url": "https://github.com/birchpress/dispatcher.git"
   },
   "dependencies": {
+    "brithon-framework": "git+https://b87409649260dacb50506dc8d1fc70af19fe29ed@github.com/birchpress/brithon-framework.git",
     "body-parser": "^1.11.0",
     "cookie-parser": "^1.3.3",
     "debug": "^2.1.1",
