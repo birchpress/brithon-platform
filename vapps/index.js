@@ -12,15 +12,7 @@ var vApps = fs.readdirSync(vAppDir).filter(function(file) {
 });
 
 _.forEach(vApps, function(vApp) {
-    var versions = fs.readdirSync(path.join(vAppDir, vApp)).filter(function(file) {
-        return fs.statSync(path.join(vAppDir, vApp, file)).isDirectory();
-    });
-
-    _.forEach(versions, function(version) {
-        var mountPath =  path.join('/', vApp, version);
-        var instance = require(path.join(vAppDir, vApp, version, 'index'));
-        results[mountPath] = instance;
-    });
+    _.merge(results, require('./' + vApp));
 });
 
 module.exports = results;

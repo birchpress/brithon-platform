@@ -38,12 +38,7 @@ var ns = brithon.ns('brithon.appointments.app', {
         }
     },
 
-    setupEvents: function(app) {
-        app.on('mount', function(parent) {
-            parent.use(path.join('/', app.mountpath, 'public'),
-                       express.static(path.join(__dirname, 'public')));
-        });
-    },
+    setupEvents: function(app) {},
 
     setupUtils: function(app) {
         app.set('views', path.join(__dirname, 'views'));
@@ -69,9 +64,9 @@ var ns = brithon.ns('brithon.appointments.app', {
 
         app.use(mainRouter);
 
-        var vApps = require('./vapps/index');
-        _.forEach(vApps, function(instance, mountPath) {
-            app.use(mountPath, instance);
+        var vApps = require('./vapps');
+        _.forEach(vApps, function(instance, mountpath) {
+            app.use(mountpath, instance);
         });
 
         app.use(slash());
