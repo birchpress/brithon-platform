@@ -8,7 +8,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 
 var _ = require('lodash');
-var brithon = require('brithon-framework');
+var brithon = require('./framework/brithon');
 
 var app = express();
 
