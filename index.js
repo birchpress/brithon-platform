@@ -50,20 +50,6 @@ var ns = brithon.ns('brithon.appointments.app', {
     },
 
     setupRouters: function(app) {
-        var mainRouter = express.Router();
-
-        mainRouter.all('/:userId(\\d+)/', function(req, res, next) {
-            var userId = req.params.userId;
-            var version = ns.getVersion4User(userId);
-            var vApp = 'appointments';
-
-            req.url = path.join('/', vApp, version, req.url);
-
-            next();
-        });
-
-        app.use(mainRouter);
-
         var vApps = require('./vapps');
         _.forEach(vApps, function(instance, mountpath) {
             app.use(mountpath, instance);
@@ -100,17 +86,6 @@ var ns = brithon.ns('brithon.appointments.app', {
                 error: {}
             });
         });
-    },
-
-    // TODO: placeholder
-    getVersion4User: function(userId) {
-        var map = {
-            '1016': 'v1.0',
-            '1017': 'v1.1',
-            '1018': 'v1.0'
-        };
-
-        return map[userId] ? map[userId] : 'v1.0';
     }
 });
 
