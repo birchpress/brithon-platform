@@ -7,7 +7,7 @@ var _ = require('lodash');
 
 var vAppName = path.basename(__dirname);
 var scheduleRouter = express.Router();
-var results = {};
+var mountList = [];
 
 // TODO: placeholder
 function getVersion4User(userId) {
@@ -29,16 +29,20 @@ scheduleRouter.all('/:userId(\\d+)/', function(req, res, next) {
     next();
 });
 
-results['/'] =  scheduleRouter;
+mountList.push({
+    mountpath: '/',
+    router: scheduleRouter
+});
 
 var versions = fs.readdirSync(__dirname).filter(function(file) {
     return fs.statSync(path.join(__dirname, file)).isDirectory();
 });
 
-_.forEach(versions, function(version) {
-    var mountpath =  path.join('/', vAppName, version);
-    var instance = require(path.join(__dirname, version, 'index'));
-    results[mountpath] = instance;
-});
+Array.prototype.push.apply(mountList, _.map(versions, function(version) {
+    return {
+        mountpath: path.join('/', vAppName, version),
+        router: require(path.join(__dirname, version, 'index'))
+    };
+}));
 
-module.exports = results;
+module.exports = mountList;

@@ -12,10 +12,11 @@ var versions = fs.readdirSync(__dirname).filter(function(file) {
 // TODO: placeholder.
 var version = versions[0];
 
-var results = {};
+var mountList = [];
 
-var mountpath =  path.join('/', vAppName);
-var instance = require(path.join(__dirname, version, 'index'));
-results[mountpath] = instance;
+mountList.push({
+    mountpath: '/', // path.join('/', vAppName);
+    router: require(path.join(__dirname, version, 'index'))
+});
 
-module.exports = results;
+module.exports = mountList;

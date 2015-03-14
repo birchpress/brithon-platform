@@ -50,9 +50,9 @@ var ns = brithon.ns('brithon.appointments.app', {
     },
 
     setupRouters: function(app) {
-        var vApps = require('./vapps');
-        _.forEach(vApps, function(instance, mountpath) {
-            app.use(mountpath, instance);
+        var mountList = require('./vapps');
+        _.forEach(mountList, function(mountMap) {
+            app.use(mountMap.mountpath, mountMap.router);
         });
 
         app.use(slash());
