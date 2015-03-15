@@ -12,7 +12,7 @@ var brithon = require('./framework/brithon');
 
 var app = express();
 
-var ns = brithon.ns('brithon.appointments.app', {
+var ns = brithon.ns('brithon.dispatcher', {
     init: function() {},
 
     setup: function(app) {
