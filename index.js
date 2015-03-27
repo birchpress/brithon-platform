@@ -8,7 +8,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 
 var _ = require('lodash');
-var brithon = require('./framework/brithon');
+var brithon = require('brithon-framework').getInstance('platform');
 
 var app = express();
 
@@ -50,7 +50,7 @@ var ns = brithon.ns('brithon.dispatcher', {
     },
 
     setupRouters: function(app) {
-        var mountList = require('./vapps');
+        var mountList = require('./plugins');
         _.forEach(mountList, function(mountMap) {
             app.use(mountMap.mountpath, mountMap.router);
         });

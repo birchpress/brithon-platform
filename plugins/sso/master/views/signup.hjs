@@ -1,0 +1,71 @@
+{{<layout}}
+    {{$title}}Subscribe to Brithon Appointments today{{/title}}
+
+    {{$content}}
+    <div class="container signup">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-center m-b-md">
+                    <h3>Start one month free trial today. </h3>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+            </div>
+            <div class="col-md-4">
+                <div class="hpanel">
+                    <div class="panel-body">
+                        <form action="" method="post" id="signupForm" data-parsley-validate data-parsley-ui-enabled="true">
+                            <div class="form-group">
+                                <label>Your full name (e.g., John Smith)</label>
+                                <input type="text" value="" id="fullname" class="form-control" name="fullname" data-parsley-required />
+                            </div>
+                            <div class="form-group">
+                                <label>Company or organization</label>
+                                <input type="text" value="" id="organization" class="form-control" name="organization" />
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" value="" id="email" class="form-control" name="email" data-parsley-required />
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" value="" id="password" class="form-control" name="password" data-parsley-required />
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm password</label>
+                                <input class="form-control" type="password" data-parsley-required data-parsley-equalto="#password">
+                            </div>
+                            <div class="form-group">
+                                By signing up you confirm that you have read and agree to our <a class="" href="#">terms of service</a> and <a href="#">privacy policy</a>.
+                            </div>
+                            <div class="form-group">
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary">Sign up for free</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="text-center">
+                                    Already registered? <a href="/signin">Sign in</a> here.
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                2015 &copy; Brithon Inc.
+            </div>
+        </div>
+    </div>
+    {{/content}}
+
+    {{$foot}}
+    <script src="{{root}}public/js/signup.js"></script>
+    {{/foot}}
+{{/layout}}

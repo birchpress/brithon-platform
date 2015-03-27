@@ -1,0 +1,5 @@
+{
+  "cookie": {
+    "secret": "cookie secret for development"
+  }
+}
