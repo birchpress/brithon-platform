@@ -11,7 +11,7 @@ var vApps = fs.readdirSync(vAppDir).filter(function(file) {
 
 // ordre is important within each vapp
 var mountList = Array.prototype.concat.apply([], _.map(vApps, function(vApp) {
-    return require('./' + vApp);
+    return require('./' + vApp + '/mount');
 }));
 
 module.exports = mountList;

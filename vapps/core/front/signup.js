@@ -1,9 +1,9 @@
 'use strict';
 
-var brithon = require('brithon-framework').getInstance('platform');
+var brithon = require('./framework');
 var $ = require('jquery');
 
-var ns = brithon.ns('brithon.sso.front.signup', {
+var ns = brithon.ns('brithon.core.front.signup', {
     init: function() { },
 
     run: function() {

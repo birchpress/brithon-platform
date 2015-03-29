@@ -3,11 +3,11 @@
 var express = require('express');
 var _ = require('lodash');
 
-var brithon = require('brithon-framework').getInstance('platform');
+var brithon = require('../framework');
 
 var router = express.Router();
 
-var ns = brithon.ns('brithon.sso.routes', {
+var ns = brithon.ns('brithon.core.routes', {
     init: function() {},
 
     setup: function(app) {

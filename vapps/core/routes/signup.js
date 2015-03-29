@@ -3,11 +3,11 @@
 var express = require('express');
 var path = require('path');
 
-var brithon = require('brithon-framework').getInstance('platform');
+var brithon = require('../framework');
 
 var router = express.Router();
 
-var ns = brithon.ns('brithon.sso.routes.signin', {
+var ns = brithon.ns('brithon.core.routes.signup', {
 
     init: function() {},
 
@@ -20,7 +20,7 @@ var ns = brithon.ns('brithon.sso.routes.signin', {
     },
 
     get: function(req, res, next) {
-        res.render('signin', {
+        res.render('signup', {
             root: req.app.locals.mountpathWithSlash,
             partials: {
                 layout: 'layout'
@@ -29,27 +29,26 @@ var ns = brithon.ns('brithon.sso.routes.signin', {
     },
 
     post: function(req, res, next) {
-        req.knex('user').select('id').where({
+        var _id = Math.floor(Date.now() / 1000);
+
+        req.knex('user').insert({
+            // TODO: fix id
+            id: _id,
+            username: 'Hey@' + _id,
             email: req.body.email,
             password: req.body.password
         })
             .then(function(rows) {
-                if (rows.length == 1) {
-                    res.cookie('uid', rows[0].id, {signed: true});
-                    res.redirect('/' + rows[0].id);
-                } else {
                     res.render('signin', {
                         root: req.app.mountpathWithSlash,
-                        notFound: true,
                         partials: {
                             layout: 'layout'
                         }
                     });
-                }
             })
             .catch(function(error) {
                 console.error(error);
-                res.render('signin', {
+                res.render('signup', {
                     root: req.app.mountpathWithSlash,
                     partials: {
                         layout: 'layout'

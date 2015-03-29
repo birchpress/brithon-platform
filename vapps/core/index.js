@@ -10,11 +10,11 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var _ = require('lodash');
-var brithon = require('brithon-framework').getInstance('platform');
+var brithon = require('./framework');
 
 var app = express();
 
-var ns = brithon.ns('brithon.sso', {
+var ns = brithon.ns('brithon.core', {
     init: function() {},
 
     setup: function(app) {
