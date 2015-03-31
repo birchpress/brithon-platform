@@ -13,7 +13,7 @@ var middleware = require('./middleware');
 
 var app = express();
 
-var ns = brithon.ns('app', {
+var ns = brithon.ns('apps', {
 
     init: function() {},
 
@@ -90,10 +90,14 @@ var ns = brithon.ns('app', {
                 error: {}
             });
         });
+    },
+
+    getApp: function() {
+        return app;
     }
 });
 
 ns.init();
 ns.setup(app);
 
-module.exports = app;
+module.exports = ns;

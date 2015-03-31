@@ -15,16 +15,16 @@ var ns = brithon.ns('middleware', {
 		requestBrithon.router = new director.http.Router();
 
 		var coreNamepaces = ns.loadCore(requestBrithon);
-		var pluginMap = ns.getDefaultPluginMap();
+		var appsMap = ns.getDefaultAppsMap();
 		if (req.locals.accountId) {
 			var accountId = req.locals.accountId;
-			pluginMap = ns.getPluginMap(accountId);
+			appsMap = ns.getAppsMap(accountId);
 		}
-		var pluginNamepaces = ns.loadPlugins(pluginMap, requestBrithon);
+		var appNamepaces = ns.loadApps(appsMap, requestBrithon);
 		_.each(coreNamepaces, function(namespace) {
 			namespace.init();
 		});
-		_.each(pluginNamepaces, function(namespace) {
+		_.each(appNamepaces, function(namespace) {
 			namespace.init();
 		});
 
@@ -57,11 +57,11 @@ var ns = brithon.ns('middleware', {
 		return namespaces;
 	},
 
-	getDefaultPluginMap: function() {
+	getDefaultAppsMap: function() {
 		return {};
 	},
 
-	getPluginMap: function(accountId) {
+	getAppsMap: function(accountId) {
 		//TODO
 		//get it from DB
 		return {
@@ -73,18 +73,18 @@ var ns = brithon.ns('middleware', {
 		return ns.loadDir(path.join(__dirname, 'core'), brithon);
 	},
 
-	loadPlugins: function(pluginMap, brithon) {
+	loadApps: function(appsMap, brithon) {
 		var namespaces = [];
-		_.each(pluginMap, function(version, pluginName) {
-			var pluginNamespaces = ns.loadPlugin(pluginName, version, brithon);
-			namespaces = namespaces.concat(pluginNamespaces);
+		_.each(appsMap, function(version, appName) {
+			var appNamespaces = ns.loadApp(appName, version, brithon);
+			namespaces = namespaces.concat(appNamespaces);
 		});
 		return namespaces;
 	},
 
-	loadPlugin: function(pluginName, version, brithon) {
-		var pluginPath = path.join(__dirname, 'plugins', pluginName, version);
-		var namespaces = ns.loadDir(pluginPath, brithon);
+	loadApp: function(appName, version, brithon) {
+		var appPath = path.join(__dirname, 'apps', appName, version);
+		var namespaces = ns.loadDir(appPath, brithon);
 		return namespaces;
 	}
 
