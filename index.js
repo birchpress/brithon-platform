@@ -9,10 +9,12 @@ var logger = require('morgan');
 
 var _ = require('lodash');
 var brithon = require('./framework');
+var middleware = require('./middleware');
 
 var app = express();
 
-var ns = brithon.ns('brithon.dispatcher', {
+var ns = brithon.ns('app', {
+
     init: function() {},
 
     setup: function(app) {
@@ -50,11 +52,7 @@ var ns = brithon.ns('brithon.dispatcher', {
     },
 
     setupRouters: function(app) {
-        var mountList = require('./vapps');
-        _.forEach(mountList, function(mountMap) {
-            app.use(mountMap.mountpath, mountMap.router);
-        });
-
+        app.use(middleware.fn);
         app.use(slash());
     },
 
