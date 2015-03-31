@@ -1,8 +1,5 @@
-# dispatcher
-The entrance of the appointments service. To support gray release (partial deployment), it will dispatch requests to different app versions.
-
-# Virtual Applications Layout
-All virtual applications should be placed in `vapps/<vappname>/v<version>`.
+# Brithon Apps
+The platform of brithon services. To support gray release (partial deployment), it will load different apps for different accounts.
 
 # How to run
     $ npm run dev # for development
