@@ -52,6 +52,12 @@ var ns = brithon.ns('app', {
     },
 
     setupRouters: function(app) {
+        app.use('/:accountId/*', function(req, res, next){
+            req.locals = {
+                accountId: req.params.accountId
+            };
+            next();
+        });
         app.use(middleware.fn);
         app.use(slash());
     },

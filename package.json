@@ -24,7 +24,7 @@
     "convict": "^0.6.1",
     "react-immutable-render-mixin": "^0.8.0",
     "knex": "^0.7.5",
-    "crossroads": "^0.12.0"
+    "director": "^1.2.8"
   },
   "devDependencies": {
     "jsonfile": "^2.0.0"

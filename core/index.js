@@ -8,7 +8,7 @@ module.exports = function(brithon) {
 	var ns = brithon.ns('core', {
 
 		init: function() {
-			brithon.crossroads.addRoute('/', ns.doSomething);
+			brithon.router.get('/', ns.doSomething);
 		},
 
 		doSomething: function() {
