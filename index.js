@@ -1,6 +1,8 @@
 'use strict';
 
-require('./node-jsx').install();
+require('./node-jsx').install({
+    extension: '.jsx'
+});
 
 var path = require('path');
 
@@ -44,11 +46,11 @@ var ns = brithon.ns('apps', {
     },
 
     setupRouters: function(app) {
-        app.use(function(req, res, next){
+        app.use(function(req, res, next) {
             req.locals = {};
             next();
         });
-        app.use('/:accountId/*', function(req, res, next){
+        app.use('/:accountId/*', function(req, res, next) {
             req.locals.accountId = req.params.accountId
             next();
         });

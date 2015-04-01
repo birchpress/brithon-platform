@@ -24,15 +24,16 @@ module.exports = function(brithon) {
 			);
 		},
 
-		getErrorPage: function(err) {
+		getErrorPage: function(error) {
 			return React.renderToStaticMarkup(
 				<html>
 					<head>
 						<meta charSet='utf-8' />
 					</head>
 					<body>
-						<p> {err.message} </p>
-						<p> {err} </p>
+						<h1>{ error.message }</h1>
+						<h2>{ error.status }</h2>
+						<pre>{ error.stack }</pre>
 					</body>
 				</html>
 			);
