@@ -3,5 +3,5 @@ node_modules
 public/core
 public/apps
 npm-debug.log
-public/assets
+.idea
 

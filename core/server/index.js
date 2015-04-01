@@ -8,13 +8,21 @@ module.exports = function(brithon) {
 	var ns = brithon.ns('core.server', {
 
 		init: function() {
-			brithon.router.get('/', ns.doSomething);
+			brithon.router.get('/signin', ns.signin);
+			brithon.router.get('/signup', ns.signup);
 		},
 
-		doSomething: function() {
+		signin: function() {
 			var req = brithon.request;
 			var res = brithon.response;
-			var html = brithon.core.server.views.getHomePage();
+			var html = brithon.core.server.views.getSigninPage();
+			res.status('200').send(html);
+		},
+
+		signup: function() {
+			var req = brithon.request;
+			var res = brithon.response;
+			var html = brithon.core.server.views.getSignupPage();
 			res.status('200').send(html);
 		},
 
