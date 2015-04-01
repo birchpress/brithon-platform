@@ -70,7 +70,7 @@ var ns = brithon.ns('middleware', {
 	},
 
 	loadCore: function(brithon) {
-		return ns.loadDir(path.join(__dirname, 'core'), brithon);
+		return ns.loadDir(path.join(__dirname, 'core', 'server'), brithon);
 	},
 
 	loadApps: function(appsMap, brithon) {
@@ -83,7 +83,7 @@ var ns = brithon.ns('middleware', {
 	},
 
 	loadApp: function(appName, version, brithon) {
-		var appPath = path.join(__dirname, 'apps', appName, version);
+		var appPath = path.join(__dirname, 'apps', appName, version, 'server');
 		var namespaces = ns.loadDir(appPath, brithon);
 		return namespaces;
 	}

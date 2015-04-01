@@ -5,7 +5,7 @@ var _ = require('lodash');
 
 module.exports = function(brithon) {
 
-	var ns = brithon.ns('apps.sample', {
+	var ns = brithon.ns('apps.sample.server', {
 
 		init: function() {
 			brithon.router.get('/:accountId/sample/:sampleId', ns.doSomething);
