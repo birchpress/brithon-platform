@@ -16,6 +16,7 @@ module.exports = function(brithon) {
 			var req = brithon.request;
 			var res = brithon.response;
 			var html = brithon.core.server.views.getSigninPage();
+			res.set('Content-Type', 'text/html');
 			res.status('200').send(html);
 		},
 

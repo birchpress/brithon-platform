@@ -76,6 +76,7 @@ var ns = brithon.ns('middleware', {
 		var bundle = browserify(src).bundle();
 		mkdirp.sync(path.dirname(dest));
 		var writable = fs.createWriteStream(dest);
+		bundle.on('error', console.error);
 		bundle.pipe(writable);
 	},
 

@@ -28,7 +28,8 @@
     "knex": "^0.7.5",
     "browserify": "^9.0.3",
     "mkdirp": "^0.5.0",
-    "director": "^1.2.8"
+    "director": "^1.2.8",
+    "jquery": "^1.11"
   },
   "devDependencies": {
     "reactify": "^1.0.0",
