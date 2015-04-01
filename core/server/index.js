@@ -14,7 +14,14 @@ module.exports = function(brithon) {
 		doSomething: function() {
 			var req = brithon.request;
 			var res = brithon.response;
-			res.status('200').send('hello');
+			var html = brithon.core.server.views.getHomePage();
+			res.status('200').send(html);
+		},
+
+		handleErrors: function(err) {
+			var env = brithon.request.app.get('env');
+			var html = brithon.core.server.views.getErrorPage(err);
+			brithon.response.status(err.status).send(html);
 		}
 
 	});

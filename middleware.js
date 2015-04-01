@@ -29,7 +29,7 @@ var ns = brithon.ns('middleware', {
 		});
 
 		requestBrithon.router.dispatch(req, res, function(err) {
-			next();
+			ns.handleErrors(req, res, err, requestBrithon);
 		});
 	},
 
@@ -86,6 +86,10 @@ var ns = brithon.ns('middleware', {
 		var appPath = path.join(__dirname, 'apps', appName, version, 'server');
 		var namespaces = ns.loadDir(appPath, brithon);
 		return namespaces;
+	},
+
+	handleErrors: function(req, res, err, brithon) {
+		brithon.core.server.handleErrors(err);
 	}
 
 });

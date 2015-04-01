@@ -23,10 +23,13 @@
     "mysql": "^2.5.5",
     "convict": "^0.6.1",
     "react-immutable-render-mixin": "^0.8.0",
+    "react": "^0.13.0",
+    "react-tools": "^0.13.0",
     "knex": "^0.7.5",
     "director": "^1.2.8"
   },
   "devDependencies": {
+    "reactify": "^1.0.0",
     "jsonfile": "^2.0.0"
   },
   "scripts": {
