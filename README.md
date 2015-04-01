@@ -1,4 +1,4 @@
-# Brithon Apps
+# Brithon Platform
 The platform of brithon services. To support gray release (partial deployment), it will load respective versions of apps for different accounts.
 
 # How to run

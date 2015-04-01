@@ -6,6 +6,7 @@ var _ = require('lodash');
 var director = require('director');
 var browserify = require('browserify');
 var mkdirp = require('mkdirp');
+var fse = require('fs-extra');
 
 var brithon = require('brithon-framework').getInstance('server');
 
@@ -16,6 +17,7 @@ var ns = brithon.ns('middleware', {
 		requestBrithon.request = req;
 		requestBrithon.response = res;
 		requestBrithon.router = new director.http.Router();
+		requestBrithon.knex = req.locals.knex;
 
 		var coreNamepaces = ns.loadCore(requestBrithon);
 		var appsMap = ns.getDefaultAppsMap();
@@ -104,8 +106,21 @@ var ns = brithon.ns('middleware', {
 		});
 	},
 
+	copyCoreAssets: function() {
+		var srcDir = path.join(__dirname, 'core', 'assets');
+		var destDir = path.join(__dirname, 'public', 'core', 'assets');
+		fse.copySync(srcDir, destDir);
+	},
+
+	copyAppAssets: function(appName, version) {
+		var srcDir = path.join(__dirname, 'apps', appName, version, 'assets');
+		var destDir = path.join(__dirname, 'public', 'apps', appName, version, 'assets');
+		fse.copySync(srcDir, destDir);
+	},
+
 	loadCore: function(brithon) {
 		ns.bundleCoreJavaScipts();
+		ns.copyCoreAssets();
 		var namespace = ns.loadDir(path.join(__dirname, 'core', 'server'), brithon);
 		return namespace;
 	},
@@ -121,6 +136,7 @@ var ns = brithon.ns('middleware', {
 
 	loadApp: function(appName, version, brithon) {
 		ns.bundleAppJavaScripts(appName, version);
+		ns.copyAppAssets(appName, version);
 		var appPath = path.join(__dirname, 'apps', appName, version, 'server');
 		var namespaces = ns.loadDir(appPath, brithon);
 		return namespaces;

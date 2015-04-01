@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var React = require('react');
+var beautify= require('js-beautify');
 
 module.exports = function (brithon) {
 
@@ -10,46 +11,52 @@ module.exports = function (brithon) {
         init: function () {
         },
 
+        renderReactComponent: function(component) {
+            var html = React.renderToStaticMarkup(component);
+            html = beautify.html(html);
+            return html;
+        },
+
         getSigninPage: function () {
             var SLayout = brithon.core.server.components.slayout.getClass();
             var content = (
-                <div class="container signup">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="text-center m-b-md">
+                <div className="container signup">
+                    <div className="row">
+                        <div className="col-md-12">
+                            <div className="text-center m-b-md">
                                 <h3>Sign in to Brithon </h3>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-4">
+                    <div className="row">
+                        <div className="col-md-4">
                         </div>
-                        <div class="col-md-4">
-                            <div class="hpanel">
-                                <div class="panel-body">
+                        <div className="col-md-4">
+                            <div className="hpanel">
+                                <div className="panel-body">
                                     <form action="" method="post" id="signinForm" data-parsley-validate data-parsley-ui-enabled="true">
-                                        <div class="form-group">
+                                        <div className="form-group">
                                             <label>Email</label>
-                                            <input type="email" name="email" value="" id="" class="form-control" data-parsley-required />
+                                            <input type="email" name="email" value="" id="" className="form-control" data-parsley-required />
                                         </div>
-                                        <div class="form-group">
+                                        <div className="form-group">
                                             <label>Password</label>
-                                            <input type="password" name="password" value="" id="" class="form-control" ata-parsley-require />
+                                            <input type="password" name="password" value="" id="" className="form-control" ata-parsley-require />
                                         </div>
-                                        <div class="checkbox">
+                                        <div className="checkbox">
                                             <label>
                                                 <input type="checkbox" name="rememberme" checked="checked" />
                                                 Remember me on this computer
                                             </label>
                                         </div>
-                                        <div class="form-group">
-                                            <div class="text-center">
-                                                <button type="submit" class="btn btn-primary">Sign in</button>
+                                        <div className="form-group">
+                                            <div className="text-center">
+                                                <button type="submit" className="btn btn-primary">Sign in</button>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <div class="text-center">
-                                                Havent registered
+                                        <div className="form-group">
+                                            <div className="text-center">
+                                                Haven't registered?
                                                 <a href="/signup">Sign up for free</a>
                                                 here.
                                             </div>
@@ -58,23 +65,30 @@ module.exports = function (brithon) {
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div className="col-md-4">
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12 text-center">
+                    <div className="row">
+                        <div className="col-md-12 text-center">
                             2015 &copy; Brithon Inc.
                         </div>
                     </div>
                 </div>
             );
+            var head = (
+                <link rel="stylesheet" href="/public/core/assets/css/signin.css" />
+            );
             var foot = (
                 <script src="/public/core/signin.js"></script>
             );
-
-            return React.renderToStaticMarkup(
-                <SLayout title="Subscribe to Brithon Appointments today"
-                    content={ content } foot={ foot } />
+            var context = {
+                title: "Subscribe to Brithon Appointments today",
+                head: head,
+                content: content,
+                foot: foot
+            };
+            return ns.renderReactComponent(
+                <SLayout context={ context } />
             );
         },
 
@@ -83,7 +97,7 @@ module.exports = function (brithon) {
         },
 
         getErrorPage: function (error) {
-            return React.renderToStaticMarkup(
+            return ns.renderReactComponent(
                 <html>
                     <head>
                         <meta charSet='utf-8' />

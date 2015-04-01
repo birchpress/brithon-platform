@@ -3,10 +3,7 @@
 var _ = require('lodash');
 var React = require('react');
 
-var getClass = function (title, head, content, foot) {
-    var style = ".signup a { " +
-        "           text-decoration: underline;" +
-        "        }";
+var getClassMarkup = function (context) {
     return (
         <html>
             <head>
@@ -14,7 +11,7 @@ var getClass = function (title, head, content, foot) {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-                <title>{ title }</title>
+                <title>{ context.title }</title>
 
 
                 <link rel="stylesheet" href="/public/assets/themes/homer/vendor/fontawesome/css/font-awesome.css" />
@@ -27,22 +24,18 @@ var getClass = function (title, head, content, foot) {
                 <link rel="stylesheet" href="/public/assets/themes/homer/fonts/pe-icon-7-stroke/css/helper.css" />
                 <link rel="stylesheet" href="/public/assets/themes/homer/styles/style.css" />
 
-                <style>
-                    {style}
-                </style>
-
-                { head }
+                { context.head }
 
             </head>
-            <body class="blank">
+            <body className="blank">
 
-                <div class="color-line"></div>
+                <div className="color-line"></div>
 
-                <div class="pull-left m">
-                    <a href="http://www.brithon.com" class="btn btn-info">Brithon Homepage</a>
+                <div className="pull-left m">
+                    <a href="http://www.brithon.com" className="btn btn-info">Brithon Homepage</a>
                 </div>
 
-                { content }
+                { context.content }
 
                 <script src="/public/assets/themes/homer/vendor/jquery/dist/jquery.min.js"></script>
                 <script src="/public/assets/themes/homer/vendor/jquery-ui/jquery-ui.min.js"></script>
@@ -54,7 +47,7 @@ var getClass = function (title, head, content, foot) {
 
                 <script src="/public/assets/themes/homer/scripts/homer.js"></script>
 
-                { foot }
+                { context.foot }
             </body>
         </html>
     )
@@ -69,14 +62,8 @@ module.exports = function (brithon) {
 
         getClass: function () {
             return React.createClass({
-
                 render: function () {
-                    var title = this.props.title;
-                    var head = this.props.head;
-                    var content = this.props.content;
-                    var foot = this.props.foot;
-
-                    return getClass(title, head, content, foot);
+                    return getClassMarkup(this.props.context);
                 }
             });
         }

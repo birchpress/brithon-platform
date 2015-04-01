@@ -1,0 +1,59 @@
+{
+  "env": {
+    "doc": "The applicaton environment.",
+    "format": [
+      "production",
+      "development"
+    ],
+    "default": "development",
+    "env": "NODE_ENV"
+  },
+  "db": {
+    "client": {
+      "default": "mysql"
+    },
+    "pool": {
+      "min": {
+        "format": "int",
+        "default": 1
+      },
+      "max": {
+        "format": "int",
+        "default": 5
+      }
+    },
+    "connection": {
+      "host": {
+        "default": "localhost",
+        "env": "RDS_HOSTNAME"
+      },
+      "user": {
+        "default": "brithon",
+        "env": "RDS_USERNAME"
+      },
+      "password": {
+        "default": "brithon",
+        "env": "RDS_PASSWORD"
+      },
+      "port": {
+        "format": "port",
+        "default": 3306,
+        "env": "RDS_PORT"
+      },
+      "database": {
+        "default": "brithon",
+        "env": "RDS_DATABASE"
+      }
+    }
+  },
+  "cookie": {
+    "secret": {
+      "default": ""
+    },
+    "options": {
+      "httpOnly": {
+        "default": true
+      }
+    }
+  }
+}

@@ -7,9 +7,12 @@ require('./node-jsx').install({
 var path = require('path');
 
 var express = require('express');
+var knex = require('knex');
 var slash = require('express-slash');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
 var _ = require('lodash');
 
 var brithon = require('brithon-framework').getInstance('server');
@@ -24,6 +27,7 @@ var ns = brithon.ns('apps', {
     setup: function(app) {
         ns.setupConfig(app);
         ns.setupLogger(app);
+        ns.setupUtils(app);
         ns.setupStatic(app);
         ns.setupRouters(app);
     },
@@ -31,6 +35,7 @@ var ns = brithon.ns('apps', {
     setupConfig: function(app) {
         app.enable('trust proxy');
         // app.enable('strict routing');
+        app.locals.config = require('./config');
     },
 
     setupLogger: function(app) {
@@ -41,16 +46,29 @@ var ns = brithon.ns('apps', {
         }
     },
 
+    setupUtils: function(app) {
+        app.use(bodyParser.json());
+        app.use(bodyParser.urlencoded({
+            extended: false
+        }));
+
+        app.use(cookieParser(app.locals.config.get('cookie.secret'),
+            app.locals.config.get('cookie.options')));
+
+        var db = knex(app.locals.config.get('db'));
+        app.use(function(req, res, next) {
+            req.locals = {};
+            req.locals.knex = db;
+            next();
+        });
+    },
+
     setupStatic: function(app) {
         app.use(favicon(path.join(__dirname, 'public/favicon.ico')));
         app.use('/public', express.static(path.join(__dirname, 'public')));
     },
 
     setupRouters: function(app) {
-        app.use(function(req, res, next) {
-            req.locals = {};
-            next();
-        });
         app.use('/:accountId/*', function(req, res, next) {
             req.locals.accountId = req.params.accountId
             next();
