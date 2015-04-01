@@ -22,6 +22,10 @@ module.exports = function(brithon) {
 			var env = brithon.request.app.get('env');
 			var html = brithon.core.server.views.getErrorPage(err);
 			brithon.response.status(err.status).send(html);
+		},
+
+		getVersion: function() {
+			return '1.0';
 		}
 
 	});

@@ -4,7 +4,10 @@ var path = require('path');
 var fs = require('fs');
 var _ = require('lodash');
 var director = require('director');
-var brithon = require('./framework');
+var browserify = require('browserify');
+var mkdirp = require('mkdirp');
+
+var brithon = require('brithon-framework').getInstance('server');
 
 var ns = brithon.ns('middleware', {
 
@@ -69,8 +72,41 @@ var ns = brithon.ns('middleware', {
 		};
 	},
 
+	bundleJavaScript: function(src, dest) {
+		var bundle = browserify(src).bundle();
+		mkdirp.sync(path.dirname(dest));
+		var writable = fs.createWriteStream(dest);
+		bundle.pipe(writable);
+	},
+
+	bundleCoreJavaScipts: function() {
+		var srcDir = path.join(__dirname, 'core');
+		var fileNames = fs.readdirSync(srcDir);
+		_.each(fileNames, function(fileName) {
+			var filePath = path.join(srcDir, fileName);
+			if (fs.statSync(filePath).isFile()) {
+				var desPath = path.join(__dirname, 'public', 'core', fileName);
+				ns.bundleJavaScript(filePath, desPath);
+			}
+		});
+	},
+
+	bundleAppJavaScripts: function(appName, version) {
+		var srcDir = path.join(__dirname, 'apps', appName, version);
+		var fileNames = fs.readdirSync(srcDir);
+		_.each(fileNames, function(fileName) {
+			var filePath = path.join(srcDir, fileName);
+			if (fs.statSync(filePath).isFile()) {
+				var desPath = path.join(__dirname, 'public', 'apps', appName, version, fileName);
+				ns.bundleJavaScript(filePath, desPath);
+			}
+		});
+	},
+
 	loadCore: function(brithon) {
-		return ns.loadDir(path.join(__dirname, 'core', 'server'), brithon);
+		ns.bundleCoreJavaScipts();
+		var namespace = ns.loadDir(path.join(__dirname, 'core', 'server'), brithon);
+		return namespace;
 	},
 
 	loadApps: function(appsMap, brithon) {
@@ -83,6 +119,7 @@ var ns = brithon.ns('middleware', {
 	},
 
 	loadApp: function(appName, version, brithon) {
+		ns.bundleAppJavaScripts(appName, version);
 		var appPath = path.join(__dirname, 'apps', appName, version, 'server');
 		var namespaces = ns.loadDir(appPath, brithon);
 		return namespaces;

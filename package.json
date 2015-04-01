@@ -1,6 +1,6 @@
 {
-  "name": "brithon-platform",
-  "description": "Brithon Application Platform",
+  "name": "brithon-apps",
+  "description": "Brithon Apps",
   "version": "1.0.0",
   "repository": {
     "type": "git",
@@ -26,6 +26,8 @@
     "react": "^0.13.0",
     "react-tools": "^0.13.0",
     "knex": "^0.7.5",
+    "browserify": "^9.0.3",
+    "mkdirp": "^0.5.0",
     "director": "^1.2.8"
   },
   "devDependencies": {

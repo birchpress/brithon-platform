@@ -10,9 +10,9 @@ var express = require('express');
 var slash = require('express-slash');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
-
 var _ = require('lodash');
-var brithon = require('./framework');
+
+var brithon = require('brithon-framework').getInstance('server');
 var middleware = require('./middleware');
 
 var app = express();
@@ -43,6 +43,7 @@ var ns = brithon.ns('apps', {
 
     setupStatic: function(app) {
         app.use(favicon(path.join(__dirname, 'public/favicon.ico')));
+        app.use('/public', express.static(path.join(__dirname, 'public')));
     },
 
     setupRouters: function(app) {
