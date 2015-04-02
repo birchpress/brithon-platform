@@ -1,16 +1,23 @@
 'use strict';
 
-var $ = require('jquery');
+var React = require('react');
+var _ = require('lodash');
+
 var brithon = require('brithon-framework').getInstance('client');
+var signinPanel = require('./components/signinpanel');
 
 var ns = brithon.ns('brithon.core.signin', {
-    init: function() { },
 
-    run: function() {
-        $(function() {
-            $('#signinForm').parsley();
-        });
-    }
+	init: function() {},
+
+	run: function() {
+		var SigninPanel = signinPanel.getClass();
+
+		React.render(
+			React.createElement(SigninPanel, null),
+			document.getElementById('signin-panel')
+		);
+	}
 });
 
 ns.init();

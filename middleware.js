@@ -7,8 +7,11 @@ var director = require('director');
 var browserify = require('browserify');
 var mkdirp = require('mkdirp');
 var fse = require('fs-extra');
+var async = require('async');
 
 var brithon = require('brithon-framework').getInstance('server');
+
+var bundleTasks = [];
 
 var ns = brithon.ns('middleware', {
 
@@ -33,8 +36,14 @@ var ns = brithon.ns('middleware', {
 			namespace.init();
 		});
 
-		requestBrithon.router.dispatch(req, res, function(err) {
-			ns.handleErrors(req, res, err, requestBrithon);
+		async.series(bundleTasks, function(err, results){
+			if(err) {
+				console.error(err);
+			} else {
+				requestBrithon.router.dispatch(req, res, function(err) {
+					ns.handleErrors(req, res, err, requestBrithon);
+				});
+			}
 		});
 	},
 
@@ -76,12 +85,18 @@ var ns = brithon.ns('middleware', {
 
 	bundleJavaScript: function(src, dest) {
 		var bundle = browserify(src).bundle();
-		// bundle.transform('reactify');
-		// bundle.transform('browserify-shim');
 		mkdirp.sync(path.dirname(dest));
-		var writable = fs.createWriteStream(dest);
-		bundle.on('error', console.error);
-		bundle.pipe(writable);
+		var task = function(callback) {
+			var writable = fs.createWriteStream(dest);
+			bundle.on('error', function(err) {
+				callback(err, dest);
+			});
+			writable.on('finish', function(){
+				callback(null, dest);
+			});
+			bundle.pipe(writable);
+		};
+		bundleTasks.push(task);
 	},
 
 	bundleCoreJavaScipts: function() {

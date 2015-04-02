@@ -9,7 +9,7 @@ var getClassMarkup = function (context) {
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+                <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
 
                 <title>{ context.title }</title>
 
@@ -45,8 +45,7 @@ var getClassMarkup = function (context) {
                 <script src="/public/assets/themes/homer/vendor/metisMenu/dist/metisMenu.min.js"></script>
                 <script src="/public/assets/themes/homer/vendor/sparkline/index.js"></script>
                 <script src="//cdnjs.cloudflare.com/ajax/libs/parsley.js/2.0.7/parsley.min.js"></script>
-
-                <script src="/public/assets/themes/homer/scripts/homer.js"></script>
+                <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.13.1/react-with-addons.js"></script>
 
                 { context.foot }
             </body>
