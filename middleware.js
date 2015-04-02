@@ -38,13 +38,13 @@ var ns = brithon.ns('middleware', {
 		});
 	},
 
-	loadModule: function(filePath, brithon) {
+	loadModule: function(filePath, requestBrithon) {
 		var module = require(filePath);
-		var ns = module(brithon);
+		var ns = module(requestBrithon);
 		return ns;
 	},
 
-	loadDir: function(dirPath, brithon) {
+	loadDir: function(dirPath, requestBrithon) {
 		var namespaces = [];
 		var loadDir = function(dirPath) {
 			var fileNames = fs.readdirSync(dirPath);
@@ -53,7 +53,7 @@ var ns = brithon.ns('middleware', {
 				if (fs.statSync(filePath).isDirectory()) {
 					loadDir(filePath);
 				} else if (fs.statSync(filePath).isFile()) {
-					var namespace = ns.loadModule(filePath, brithon);
+					var namespace = ns.loadModule(filePath, requestBrithon);
 					namespaces.push(namespace);
 				}
 			});
@@ -76,6 +76,8 @@ var ns = brithon.ns('middleware', {
 
 	bundleJavaScript: function(src, dest) {
 		var bundle = browserify(src).bundle();
+		// bundle.transform('reactify');
+		// bundle.transform('browserify-shim');
 		mkdirp.sync(path.dirname(dest));
 		var writable = fs.createWriteStream(dest);
 		bundle.on('error', console.error);
@@ -118,32 +120,36 @@ var ns = brithon.ns('middleware', {
 		fse.copySync(srcDir, destDir);
 	},
 
-	loadCore: function(brithon) {
-		ns.bundleCoreJavaScipts();
-		ns.copyCoreAssets();
-		var namespace = ns.loadDir(path.join(__dirname, 'core', 'server'), brithon);
+	loadCore: function(requestBrithon) {
+		if (brithon.platform.isDev()) {
+			ns.bundleCoreJavaScipts();
+			ns.copyCoreAssets();
+		}
+		var namespace = ns.loadDir(path.join(__dirname, 'core', 'server'), requestBrithon);
 		return namespace;
 	},
 
-	loadApps: function(appsMap, brithon) {
+	loadApps: function(appsMap, requestBrithon) {
 		var namespaces = [];
 		_.each(appsMap, function(version, appName) {
-			var appNamespaces = ns.loadApp(appName, version, brithon);
+			var appNamespaces = ns.loadApp(appName, version, requestBrithon);
 			namespaces = namespaces.concat(appNamespaces);
 		});
 		return namespaces;
 	},
 
-	loadApp: function(appName, version, brithon) {
-		ns.bundleAppJavaScripts(appName, version);
-		ns.copyAppAssets(appName, version);
+	loadApp: function(appName, version, requestBrithon) {
+		if (brithon.platform.isDev()) {
+			ns.bundleAppJavaScripts(appName, version);
+			ns.copyAppAssets(appName, version);
+		}
 		var appPath = path.join(__dirname, 'apps', appName, version, 'server');
-		var namespaces = ns.loadDir(appPath, brithon);
+		var namespaces = ns.loadDir(appPath, requestBrithon);
 		return namespaces;
 	},
 
-	handleErrors: function(req, res, err, brithon) {
-		brithon.core.server.handleErrors(err);
+	handleErrors: function(req, res, err, requestBrithon) {
+		requestBrithon.core.server.handleErrors(err);
 	}
 
 });

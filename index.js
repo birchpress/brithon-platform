@@ -20,33 +20,37 @@ var middleware = require('./middleware');
 
 var app = express();
 
-var ns = brithon.ns('apps', {
+var ns = brithon.ns('platform', {
 
     init: function() {},
 
-    setup: function(app) {
-        ns.setupConfig(app);
-        ns.setupLogger(app);
-        ns.setupUtils(app);
-        ns.setupStatic(app);
-        ns.setupRouters(app);
+    setup: function() {
+        ns.setupConfig();
+        ns.setupLogger();
+        ns.setupUtils();
+        ns.setupStatic();
+        ns.setupRouters();
     },
 
-    setupConfig: function(app) {
+    setupConfig: function() {
         app.enable('trust proxy');
         // app.enable('strict routing');
         app.locals.config = require('./config');
     },
 
-    setupLogger: function(app) {
-        if (app.get('env') === 'development') {
+    setupLogger: function() {
+        if (ns.isDev()) {
             app.use(logger('dev'));
         } else {
             app.use(logger('combined'));
         }
     },
 
-    setupUtils: function(app) {
+    isDev: function() {
+        return app.get('env') === 'development';
+    },
+
+    setupUtils: function() {
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({
             extended: false
@@ -63,12 +67,12 @@ var ns = brithon.ns('apps', {
         });
     },
 
-    setupStatic: function(app) {
+    setupStatic: function() {
         app.use(favicon(path.join(__dirname, 'public/favicon.ico')));
         app.use('/public', express.static(path.join(__dirname, 'public')));
     },
 
-    setupRouters: function(app) {
+    setupRouters: function() {
         app.use('/:accountId/*', function(req, res, next) {
             req.locals.accountId = req.params.accountId
             next();
@@ -83,6 +87,6 @@ var ns = brithon.ns('apps', {
 });
 
 ns.init();
-ns.setup(app);
+ns.setup();
 
 module.exports = ns;

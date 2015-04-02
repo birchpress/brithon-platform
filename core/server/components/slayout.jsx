@@ -37,6 +37,7 @@ var getClassMarkup = function (context) {
 
                 { context.content }
 
+                <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.5.0/lodash.min.js"></script>
                 <script src="/public/assets/themes/homer/vendor/jquery/dist/jquery.min.js"></script>
                 <script src="/public/assets/themes/homer/vendor/jquery-ui/jquery-ui.min.js"></script>
                 <script src="/public/assets/themes/homer/vendor/slimScroll/jquery.slimscroll.min.js"></script>
