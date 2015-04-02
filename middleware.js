@@ -29,10 +29,10 @@ var ns = brithon.ns('middleware', {
 			appsMap = ns.getAppsMap(accountId);
 		}
 		var appNamepaces = ns.loadApps(appsMap, requestBrithon);
-		_.each(coreNamepaces, function(namespace) {
+		_.forEach(coreNamepaces, function(namespace) {
 			namespace.init();
 		});
-		_.each(appNamepaces, function(namespace) {
+		_.forEach(appNamepaces, function(namespace) {
 			namespace.init();
 		});
 
@@ -57,7 +57,7 @@ var ns = brithon.ns('middleware', {
 		var namespaces = [];
 		var loadDir = function(dirPath) {
 			var fileNames = fs.readdirSync(dirPath);
-			_.each(fileNames, function(fileName) {
+			_.forEach(fileNames, function(fileName) {
 				var filePath = path.join(dirPath, fileName);
 				if (fs.statSync(filePath).isDirectory()) {
 					loadDir(filePath);
@@ -102,7 +102,7 @@ var ns = brithon.ns('middleware', {
 	bundleCoreJavaScipts: function() {
 		var srcDir = path.join(__dirname, 'core');
 		var fileNames = fs.readdirSync(srcDir);
-		_.each(fileNames, function(fileName) {
+		_.forEach(fileNames, function(fileName) {
 			var filePath = path.join(srcDir, fileName);
 			if (fs.statSync(filePath).isFile()) {
 				var desPath = path.join(__dirname, 'public', 'core', fileName);
@@ -114,7 +114,7 @@ var ns = brithon.ns('middleware', {
 	bundleAppJavaScripts: function(appName, version) {
 		var srcDir = path.join(__dirname, 'apps', appName, version);
 		var fileNames = fs.readdirSync(srcDir);
-		_.each(fileNames, function(fileName) {
+		_.forEach(fileNames, function(fileName) {
 			var filePath = path.join(srcDir, fileName);
 			if (fs.statSync(filePath).isFile()) {
 				var desPath = path.join(__dirname, 'public', 'apps', appName, version, fileName);
@@ -146,7 +146,7 @@ var ns = brithon.ns('middleware', {
 
 	loadApps: function(appsMap, requestBrithon) {
 		var namespaces = [];
-		_.each(appsMap, function(version, appName) {
+		_.forEach(appsMap, function(version, appName) {
 			var appNamespaces = ns.loadApp(appName, version, requestBrithon);
 			namespaces = namespaces.concat(appNamespaces);
 		});

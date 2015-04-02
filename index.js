@@ -47,7 +47,7 @@ var ns = brithon.ns('platform', {
     },
 
     isDev: function() {
-        return app.get('env') === 'development';
+        return app.locals.config.get('env') === 'development';
     },
 
     setupUtils: function() {
