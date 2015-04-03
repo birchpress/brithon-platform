@@ -6,7 +6,7 @@ var _ = require('lodash');
 var brithon = require('brithon-framework').getInstance('client');
 var signinPanel = require('./components/signinpanel');
 
-var ns = brithon.ns('brithon.core.signin', {
+var ns = brithon.ns('brithon.core.sso.signin', {
 
 	init: function() {},
 

@@ -17,12 +17,13 @@ var ns = brithon.ns('middleware', {
 
 	fn: function(req, res, next) {
 		var requestBrithon = require('brithon-framework').newInstance();
+		req.locals.requestBrithon = requestBrithon;
 		requestBrithon.request = req;
 		requestBrithon.response = res;
 		requestBrithon.router = new director.http.Router();
 		requestBrithon.knex = req.locals.knex;
 
-		var coreNamepaces = ns.loadCore(requestBrithon);
+		var coreNamepaces = ns.loadCoreApps(requestBrithon);
 		var appsMap = ns.getDefaultAppsMap();
 		if (req.locals.accountId) {
 			var accountId = req.locals.accountId;
@@ -30,18 +31,22 @@ var ns = brithon.ns('middleware', {
 		}
 		var appNamepaces = ns.loadApps(appsMap, requestBrithon);
 		_.forEach(coreNamepaces, function(namespace) {
-			namespace.init();
+			if (_.isFunction(namespace.init)) {
+				namespace.init();
+			}
 		});
 		_.forEach(appNamepaces, function(namespace) {
-			namespace.init();
+			if (_.isFunction(namespace.init)) {
+				namespace.init();
+			}
 		});
 
-		async.series(bundleTasks, function(err, results){
-			if(err) {
-				console.error(err);
+		async.series(bundleTasks, function(err, results) {
+			if (err) {
+				next(err);
 			} else {
 				requestBrithon.router.dispatch(req, res, function(err) {
-					ns.handleErrors(req, res, err, requestBrithon);
+					next(err);
 				});
 			}
 		});
@@ -91,7 +96,7 @@ var ns = brithon.ns('middleware', {
 			bundle.on('error', function(err) {
 				callback(err, dest);
 			});
-			writable.on('finish', function(){
+			writable.on('finish', function() {
 				callback(null, dest);
 			});
 			bundle.pipe(writable);
@@ -99,72 +104,75 @@ var ns = brithon.ns('middleware', {
 		bundleTasks.push(task);
 	},
 
-	bundleCoreJavaScipts: function() {
-		var srcDir = path.join(__dirname, 'core');
-		var fileNames = fs.readdirSync(srcDir);
-		_.forEach(fileNames, function(fileName) {
-			var filePath = path.join(srcDir, fileName);
-			if (fs.statSync(filePath).isFile()) {
-				var desPath = path.join(__dirname, 'public', 'core', fileName);
-				ns.bundleJavaScript(filePath, desPath);
-			}
-		});
-	},
-
-	bundleAppJavaScripts: function(appName, version) {
-		var srcDir = path.join(__dirname, 'apps', appName, version);
-		var fileNames = fs.readdirSync(srcDir);
-		_.forEach(fileNames, function(fileName) {
-			var filePath = path.join(srcDir, fileName);
-			if (fs.statSync(filePath).isFile()) {
-				var desPath = path.join(__dirname, 'public', 'apps', appName, version, fileName);
-				ns.bundleJavaScript(filePath, desPath);
-			}
-		});
-	},
-
-	copyCoreAssets: function() {
-		var srcDir = path.join(__dirname, 'core', 'assets');
-		var destDir = path.join(__dirname, 'public', 'core', 'assets');
-		fse.copySync(srcDir, destDir);
-	},
-
-	copyAppAssets: function(appName, version) {
-		var srcDir = path.join(__dirname, 'apps', appName, version, 'assets');
-		var destDir = path.join(__dirname, 'public', 'apps', appName, version, 'assets');
-		fse.copySync(srcDir, destDir);
-	},
-
-	loadCore: function(requestBrithon) {
-		if (brithon.platform.isDev()) {
-			ns.bundleCoreJavaScipts();
-			ns.copyCoreAssets();
+	getExactAppName: function(type, appName, version) {
+		if ('core' === type) {
+			return appName;
+		} else {
+			return path.join(appName, version);
 		}
-		var namespace = ns.loadDir(path.join(__dirname, 'core', 'server'), requestBrithon);
-		return namespace;
 	},
 
-	loadApps: function(appsMap, requestBrithon) {
+	bundleAppJavaScripts: function(type, appName, version) {
+		var exactAppName = ns.getExactAppName(type, appName, version);
+		var srcDir = path.join(__dirname, type, exactAppName);
+		var fileNames = fs.readdirSync(srcDir);
+		_.forEach(fileNames, function(fileName) {
+			var filePath = path.join(srcDir, fileName);
+			if (fs.statSync(filePath).isFile()) {
+				var desPath = path.join(__dirname, 'public', type, exactAppName, fileName);
+				ns.bundleJavaScript(filePath, desPath);
+			}
+		});
+	},
+
+	copyAppAssets: function(type, appName, version) {
+		var exactAppName = ns.getExactAppName(type, appName, version);
+		var srcDir = path.join(__dirname, type, exactAppName, 'assets');
+		var destDir = path.join(__dirname, 'public', type, exactAppName, 'assets');
+		try {
+			fse.copySync(srcDir, destDir);
+		} catch (ex) {
+			console.log(ex.message);
+		}
+	},
+
+	loadApp: function(type, appName, version, requestBrithon) {
+		var exactAppName = ns.getExactAppName(type, appName, version);
+		if (brithon.platform.isDev()) {
+			ns.bundleAppJavaScripts(type, appName, version);
+			ns.copyAppAssets(type, appName, version);
+		}
+		var appPath = path.join(__dirname, type, exactAppName, 'server');
+		try {
+			var namespaces = [];
+			if (fs.statSync(appPath).isDirectory()) {
+				namespaces = ns.loadDir(appPath, requestBrithon);
+			}
+			return namespaces;
+		} catch (ex) {
+			console.error(ex.message);
+			return [];
+		}
+	},
+
+	loadCoreApps: function(requestBrithon) {
 		var namespaces = [];
-		_.forEach(appsMap, function(version, appName) {
-			var appNamespaces = ns.loadApp(appName, version, requestBrithon);
+		var srcDir = path.join(__dirname, 'core');
+		var appNames = fs.readdirSync(srcDir);
+		_.forEach(appNames, function(appName) {
+			var appNamespaces = ns.loadApp('core', appName, null, requestBrithon);
 			namespaces = namespaces.concat(appNamespaces);
 		});
 		return namespaces;
 	},
 
-	loadApp: function(appName, version, requestBrithon) {
-		if (brithon.platform.isDev()) {
-			ns.bundleAppJavaScripts(appName, version);
-			ns.copyAppAssets(appName, version);
-		}
-		var appPath = path.join(__dirname, 'apps', appName, version, 'server');
-		var namespaces = ns.loadDir(appPath, requestBrithon);
+	loadApps: function(appsMap, requestBrithon) {
+		var namespaces = [];
+		_.forEach(appsMap, function(version, appName) {
+			var appNamespaces = ns.loadApp('apps', appName, version, requestBrithon);
+			namespaces = namespaces.concat(appNamespaces);
+		});
 		return namespaces;
-	},
-
-	handleErrors: function(req, res, err, requestBrithon) {
-		requestBrithon.core.server.handleErrors(err);
 	}
 
 });

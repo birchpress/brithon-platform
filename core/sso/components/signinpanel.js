@@ -62,9 +62,7 @@ var getClassMarkup = function (props) {
     );
 };
 
-var ns = brithon.ns('brithon.core.components.signinpanel', {
-
-    init: function() { },
+var ns = brithon.ns('brithon.core.sso.components.signinpanel', {
 
     getClass: function () {
         return React.createClass({

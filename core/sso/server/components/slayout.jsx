@@ -54,10 +54,7 @@ var getClassMarkup = function (context) {
 
 module.exports = function (brithon) {
 
-    var ns = brithon.ns('core.server.components.slayout', {
-
-        init: function () {
-        },
+    var ns = brithon.ns('core.sso.server.components.slayout', {
 
         getClass: function () {
             return React.createClass({
