@@ -8,6 +8,7 @@ var browserify = require('browserify');
 var mkdirp = require('mkdirp');
 var fse = require('fs-extra');
 var async = require('async');
+var junk = require('junk');
 
 var brithon = require('brithon-framework').getInstance('server');
 
@@ -43,10 +44,10 @@ var ns = brithon.ns('middleware', {
 
 		async.series(bundleTasks, function(err, results) {
 			if (err) {
-				next(err);
+				console.error(err);
 			} else {
 				requestBrithon.router.dispatch(req, res, function(err) {
-					next(err);
+					ns.handleErrors(req, res, err, requestBrithon);
 				});
 			}
 		});
@@ -54,14 +55,18 @@ var ns = brithon.ns('middleware', {
 
 	loadModule: function(filePath, requestBrithon) {
 		var module = require(filePath);
-		var ns = module(requestBrithon);
-		return ns;
+		if(_.isFunction(module)) {
+			var ns = module(requestBrithon);
+			return ns;
+		} else {
+			throw new Error("Invalid module is loaded from " + filePath);
+		}
 	},
 
 	loadDir: function(dirPath, requestBrithon) {
 		var namespaces = [];
 		var loadDir = function(dirPath) {
-			var fileNames = fs.readdirSync(dirPath);
+			var fileNames = fs.readdirSync(dirPath).filter(junk.not);
 			_.forEach(fileNames, function(fileName) {
 				var filePath = path.join(dirPath, fileName);
 				if (fs.statSync(filePath).isDirectory()) {
@@ -115,7 +120,7 @@ var ns = brithon.ns('middleware', {
 	bundleAppJavaScripts: function(type, appName, version) {
 		var exactAppName = ns.getExactAppName(type, appName, version);
 		var srcDir = path.join(__dirname, type, exactAppName);
-		var fileNames = fs.readdirSync(srcDir);
+		var fileNames = fs.readdirSync(srcDir).filter(junk.not);
 		_.forEach(fileNames, function(fileName) {
 			var filePath = path.join(srcDir, fileName);
 			if (fs.statSync(filePath).isFile()) {
@@ -132,7 +137,7 @@ var ns = brithon.ns('middleware', {
 		try {
 			fse.copySync(srcDir, destDir);
 		} catch (ex) {
-			console.log(ex.message);
+			console.error(ex.message);
 		}
 	},
 
@@ -143,22 +148,17 @@ var ns = brithon.ns('middleware', {
 			ns.copyAppAssets(type, appName, version);
 		}
 		var appPath = path.join(__dirname, type, exactAppName, 'server');
-		try {
-			var namespaces = [];
-			if (fs.statSync(appPath).isDirectory()) {
-				namespaces = ns.loadDir(appPath, requestBrithon);
-			}
-			return namespaces;
-		} catch (ex) {
-			console.error(ex.message);
-			return [];
+		var namespaces = [];
+		if (fs.statSync(appPath).isDirectory()) {
+			namespaces = ns.loadDir(appPath, requestBrithon);
 		}
+		return namespaces;
 	},
 
 	loadCoreApps: function(requestBrithon) {
 		var namespaces = [];
 		var srcDir = path.join(__dirname, 'core');
-		var appNames = fs.readdirSync(srcDir);
+		var appNames = fs.readdirSync(srcDir).filter(junk.not);
 		_.forEach(appNames, function(appName) {
 			var appNamespaces = ns.loadApp('core', appName, null, requestBrithon);
 			namespaces = namespaces.concat(appNamespaces);
@@ -173,7 +173,11 @@ var ns = brithon.ns('middleware', {
 			namespaces = namespaces.concat(appNamespaces);
 		});
 		return namespaces;
-	}
+	},
+
+	handleErrors: function(req, res, err, requestBrithon) {		
+		requestBrithon.core.common.server.handleErrors(err);		
+ 	}
 
 });
 

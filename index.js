@@ -30,7 +30,6 @@ var ns = brithon.ns('platform', {
         ns.setupUtils();
         ns.setupStatic();
         ns.setupRouters();
-        ns.setupErrorHandler();
     },
 
     setupConfig: function() {
@@ -82,12 +81,6 @@ var ns = brithon.ns('platform', {
         });
         app.use(middleware.fn);
         app.use(slash());
-    },
-
-    setupErrorHandler: function() {
-        app.use(function(err, req, res, next) {
-            req.locals.requestBrithon.core.common.server.handleErrors(err);
-        });
     },
 
     getApp: function() {
