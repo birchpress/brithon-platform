@@ -17,6 +17,18 @@ module.exports = function(brithon) {
 
 		getVersion: function() {
 			return '1.0';
+		},
+
+		getAppFileUrl: function(type, appName, appVersion, relPath) {
+			if('core' === type) {
+				return "/public/" + type + "/" + appName + "/" + relPath + "?version=" + ns.getVersion();
+			} else {
+				return "/public/" + type + "/" + appName + "/" + appVersion + "/" + relPath;
+			}
+		},
+
+		getCoreAppFileUrl: function(appName, relPath) {
+			return ns.getAppFileUrl('core', appName, null, relPath);
 		}
 
 	});
