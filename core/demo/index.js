@@ -25,6 +25,8 @@ var ns = brithon.ns('core.demo', {
 
 });
 
+ns.init();
+
 $(function() {
 	ns.run();
 });

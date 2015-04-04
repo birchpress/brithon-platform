@@ -11,7 +11,7 @@ module.exports = function(brithon) {
 
 		init: function() {
 			brithon.router.get('/demo/*', ns.demo);
-			brithon.router.get('/demo/', ns.demo);
+			//brithon.router.get('/demo/', ns.demo);
 		},
 
 		demo: function() {

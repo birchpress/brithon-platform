@@ -17,7 +17,7 @@ module.exports = function (brithon) {
                 <link rel="stylesheet" href="/public/core/sso/assets/css/signin.css" />
             );
             var foot = (
-                <script src="/public/core/signin.js"></script>
+                <script src="/public/core/sso/signin.js"></script>
             );
             var context = {
                 title: "Subscribe to Brithon Appointments today",

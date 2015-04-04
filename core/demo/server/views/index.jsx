@@ -5,6 +5,10 @@ var React = require('react');
 var beautify= require('js-beautify');
 
 var getPageMarkup = function(ns) {
+    var head = ns.getHead();
+    var content = ns.getContent();
+    var foot = ns.getFoot();
+
     return (
         <html>
             <head>
@@ -14,22 +18,23 @@ var getPageMarkup = function(ns) {
 
                 <title>Brithon Demo Apps</title>
 
-                { ns.getHead() }
+                { head }
 
             </head>
             <body>
 
-                { ns.getContent() }
+                { content }
 
                 <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.5.0/lodash.min.js"></script>
                 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>
                 <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.js"></script>
                 <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone.js"></script>
                 <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.13.1/react-with-addons.js"></script>
+                <script src="//cdnjs.cloudflare.com/ajax/libs/immutable/3.7.1/immutable.js"></script>
 
                 <script src="/public/core/demo/index.js"></script>
 
-                { ns.getFoot() }
+                { foot }
             </body>
         </html>
     );
@@ -47,15 +52,15 @@ module.exports = function (brithon) {
         },
 
         getHead: function() {
-            return null;
+            return [];
         },
 
         getContent: function() {
-
+            return [];
         },
 
         getFoot: function () {
-            return null;
+            return [];
         }
 
     });
