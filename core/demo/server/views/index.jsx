@@ -4,10 +4,12 @@ var _ = require('lodash');
 var React = require('react');
 var beautify= require('js-beautify');
 
-var getPageMarkup = function(ns) {
+var getPageMarkup = function(ns, brithon) {
+    var title = ns.getTitle();
     var head = ns.getHead();
     var content = ns.getContent();
     var foot = ns.getFoot();
+    var indexJs = brithon.core.common.server.getCoreAppFileUrl('demo', 'index.js');
 
     return (
         <html>
@@ -16,7 +18,7 @@ var getPageMarkup = function(ns) {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
 
-                <title>Brithon Demo Apps</title>
+                <title>{ title }</title>
 
                 { head }
 
@@ -31,8 +33,9 @@ var getPageMarkup = function(ns) {
                 <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone.js"></script>
                 <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.13.1/react-with-addons.js"></script>
                 <script src="//cdnjs.cloudflare.com/ajax/libs/immutable/3.7.1/immutable.js"></script>
+                <script src="/public/lib/brithon-framework.js"></script>
 
-                <script src="/public/core/demo/index.js"></script>
+                <script src={ indexJs }></script>
 
                 { foot }
             </body>
@@ -46,9 +49,13 @@ module.exports = function (brithon) {
 
         getPage: function () {
             return brithon.core.common.server.views.renderReactComponent(
-                getPageMarkup(ns)
+                getPageMarkup(ns, brithon)
             );
 
+        },
+
+        getTitle: function() {
+            return 'Brithon Demo';
         },
 
         getHead: function() {

@@ -8,25 +8,35 @@ module.exports = function(brithon) {
 	var ns = brithon.ns('core.todomvc.server.views', {
 
 		init: function() {
-			brithon.on('core.demo.server.views.getFoot', ns.addFoot);
-			brithon.on('core.demo.server.views.getHead', ns.addHead);
-			brithon.on('core.demo.server.views.getContent', ns.addContent);
+			brithon.on('core.demo.server.views.getTitle', ns.getTitle);
+			brithon.on('core.demo.server.views.getFoot', ns.getFoot);
+			brithon.on('core.demo.server.views.getHead', ns.getHead);
+			brithon.on('core.demo.server.views.getContent', ns.getContent);
 		},
 
-		addHead: function(head) {
+		getTitle: function(title) {
+			return 'Brithon TodoMVC';
+		},
+
+		getHead: function(head) {
+		    var baseCss = brithon.core.common.server.getCoreAppFileUrl('todomvc', 'assets/css/base.css');
+		    var appCss = brithon.core.common.server.getCoreAppFileUrl('todomvc', 'assets/css/app.css');
+
 			return [
-				<link rel="stylesheet" href="/public/core/todomvc/assets/css/base.css" />,
-				<link rel="stylesheet" href="/public/core/todomvc/assets/css/app.css" />	
+				<link rel="stylesheet" href={ baseCss } />,
+				<link rel="stylesheet" href={ appCss } />	
 			];
 		},
 
-		addFoot: function(foot) {
+		getFoot: function(foot) {
+		    var indexJs = brithon.core.common.server.getCoreAppFileUrl('todomvc', 'index.js');
+
 			return [
-				<script src="/public/core/todomvc/index.js"></script>
+				<script src={ indexJs }></script>
 			];
 		},
 
-		addContent: function(content) {
+		getContent: function(content) {
 			return [
 				<section id="todoapp"></section>,
 				<footer id="info">

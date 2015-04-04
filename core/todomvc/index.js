@@ -16,7 +16,7 @@ var ns = brithon.ns('core.todomvc', {
     init: function() {
         stores.init();
         actions.init();
-        brithon.core.demo.getRouter().route('/todomvc', 'todomvc', ns.run);
+        brithon.core.demo.getRouter().route('todomvc', 'todomvc', ns.run);
     },
 
     run: function() {

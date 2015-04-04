@@ -7,7 +7,12 @@ var React = require('react');
 var BrithonFramework = require('brithon-framework');
 
 var brithon = BrithonFramework.getInstance('client');
-var router = new Backbone.Router();
+var DemoRouter = Backbone.Router.extend({
+	routes: {
+
+	}
+});
+var router = new DemoRouter();
 
 var ns = brithon.ns('core.demo', {
 
@@ -18,6 +23,7 @@ var ns = brithon.ns('core.demo', {
 	},
 
 	run: function() {
+		console.log(router);
 		Backbone.history.start({
 			pushState: true,
 			root: "/demo/"
