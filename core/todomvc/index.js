@@ -2,7 +2,9 @@
 
 var React = require('react');
 
-var brithon = require('brithon-framework').getInstance('client');
+var BrithonFramework = require('brithon-framework');
+
+var brithon = BrithonFramework.getInstance('client');
 var stores = require('./stores');
 var actions = require('./actions');
 var TodoApp = require('./components/todoapp.jsx').getComponentClass();

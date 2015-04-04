@@ -14,7 +14,9 @@ var Cursor = require('immutable/contrib/cursor');
 var ImmutableRenderMixin = require('react-immutable-render-mixin');
 var cx = require('react/lib/cx');
 
-var brithon = require('brithon-framework').getInstance('client');
+var BrithonFramework = require('brithon-framework');
+
+var brithon = BrithonFramework.getInstance('client');
 var actions = require('../actions');
 var TodoTextInput = require('./todotextinput.jsx').getComponentClass();
 

@@ -52,8 +52,14 @@
       ]
     },
     "backbone": "global:Backbone",
+    "brithon-framework": {
+      "exports": "global:BrithonFramework",
+      "depends": [
+        "lodash"
+      ]
+    },
     "immutable": "global:Immutable",
-    "lodash": "_",
+    "lodash": "global:_",
     "react": "global:React"
   },
   "scripts": {

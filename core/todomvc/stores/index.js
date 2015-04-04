@@ -12,7 +12,9 @@
 var Immutable = require('immutable');
 var Cursor = require('immutable/contrib/cursor');
 
-var brithon = require('brithon-framework').getInstance('client');
+var BrithonFramework = require('brithon-framework');
+
+var brithon = BrithonFramework.getInstance('client');
 
 var _todos = Immutable.fromJS({});
 var createCursor = function() {

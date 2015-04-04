@@ -11,7 +11,9 @@ var React = require('react');
 var ImmutableRenderMixin = require('react-immutable-render-mixin');
 
 var actions = require('../actions');
-var brithon = require('brithon-framework').getInstance('client');
+var BrithonFramework = require('brithon-framework');
+
+var brithon = BrithonFramework.getInstance('client');
 var TodoTextInput = require('./todotextinput.jsx').getComponentClass();
 
 var Header = React.createClass({

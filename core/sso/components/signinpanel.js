@@ -1,7 +1,9 @@
 'use strict';
 
 var React = require('react');
-var brithon = require('brithon-framework').getInstance('client');
+var BrithonFramework = require('brithon-framework');
+
+var brithon = BrithonFramework.getInstance('client');
 
 var getClassMarkup = function (props) {
     return (

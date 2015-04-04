@@ -12,7 +12,9 @@ var ReactPropTypes = React.PropTypes;
 var ImmutableRenderMixin = require('react-immutable-render-mixin')
 
 var actions = require('../actions');
-var brithon = require('brithon-framework').getInstance('client');
+var BrithonFramework = require('brithon-framework');
+
+var brithon = BrithonFramework.getInstance('client');
 var TodoItem = require('./todoitem.jsx').getComponentClass();
 
 var MainSection = React.createClass({

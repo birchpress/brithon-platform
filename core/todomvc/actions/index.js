@@ -1,6 +1,8 @@
 'use strict';
 
-var brithon = require('brithon-framework').getInstance('client');
+var BrithonFramework = require('brithon-framework');
+
+var brithon = BrithonFramework.getInstance('client');
 
 var ns = brithon.ns('core.todomvc.actions', {
 

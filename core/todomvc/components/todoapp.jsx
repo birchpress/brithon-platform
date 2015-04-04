@@ -15,7 +15,9 @@
 var React = require('react');
 var ImmutableRenderMixin = require('react-immutable-render-mixin')
 
-var brithon = require('brithon-framework').getInstance('client');
+var BrithonFramework = require('brithon-framework');
+
+var brithon = BrithonFramework.getInstance('client');
 var Footer = require('./footer.jsx').getComponentClass();
 var Header = require('./header.jsx').getComponentClass();
 var MainSection = require('./mainsection.jsx').getComponentClass();
