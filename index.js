@@ -13,7 +13,6 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var _ = require('lodash');
 
 var middleware = require('./middleware');
 
@@ -47,6 +46,8 @@ function setupUtils() {
         app.locals.config.get('cookie.options')));
 
     var db = knex(app.locals.config.get('db'));
+    var migrate = require('./db/migrate');
+    migrate(db);
     app.use(function(req, res, next) {
         req.locals = {
             knex: db
@@ -62,7 +63,7 @@ function setupStatic() {
 
 function setupRouters() {
     app.use('/:accountId/*', function(req, res, next) {
-        req.locals.accountId = req.params.accountId
+        req.locals.accountId = req.params.accountId;
         next();
     });
     app.use(middleware);
