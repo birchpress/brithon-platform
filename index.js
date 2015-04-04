@@ -1,6 +1,6 @@
 'use strict';
 
-require('./node-jsx').install({
+require('node-jsx').install({
     extension: '.jsx'
 });
 
