@@ -6,13 +6,12 @@ var _ = require('lodash');
 var debug = require('debug')('db:migrate');
 
 var schema = require('./schema');
-var knex;
 
-function createTable(tableName, tableDef) {
-    return knex.schema.createTable(tableName, function (table) {
+function createTable(knex, tableName, tableDef) {
+    return knex.schema.createTable(tableName, function(table) {
         var column;
         var columnKeys = _.keys(tableDef);
-        _.forEach(columnKeys, function (key) {
+        _.forEach(columnKeys, function(key) {
             if (tableDef[key].type === 'text' &&
                 tableDef[key].hasOwnProperty('fieldtype')) {
                 column = table[tableDef[key].type](key, tableDef[key].fieldtype);
@@ -56,24 +55,23 @@ function createTable(tableName, tableDef) {
     });
 }
 
-function createTables (schema) {
+function createTables(knex, schema) {
     var tableNames = _.keys(schema);
-    var tables = _.map(tableNames, function (tableName) {
-        return function () {
-            return createTable(tableName, schema[tableName]);
+    var tables = _.map(tableNames, function(tableName) {
+        return function() {
+            return createTable(knex, tableName, schema[tableName]);
         };
     });
 
     return sequence(tables);
 }
 
-function migrate (db) {
-    knex = db;
-    createTables()
+function migrate(knex) {
+    createTables(knex, schema)
         .then(function() {
             debug('DB migration successes.');
         })
-        .otherwise(function (error) {
+        .otherwise(function(error) {
             debug(error.stack);
             process.exit(1);
         });

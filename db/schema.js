@@ -1,39 +1,86 @@
 'use strict';
 
-var Schema = {
-    users: {
-        id: {type: 'increments', nullable: false, primary: true},
-        email: {type: 'string', maxlength: 254, nullable: false, unique: true},
-        name: {type: 'string', maxlength: 150, nullable: false}
+'use strict';
+
+var schema = {
+    account: {
+        id: {
+            type: 'increments',
+            nullable: false,
+            primary: true
+        },
+
+        name: {
+            type: 'string',
+            maxlength: 150,
+            nullable: false
+        }
     },
 
-    categories: {
-        id: {type: 'increments', nullable: false, primary: true},
-        name: {type: 'string', maxlength: 150, nullable: false}
+    user: {
+        id: {
+            type: 'increments',
+            nullable: false,
+            primary: true
+        },
+
+        password: {
+            type: 'string',
+            maxlength: 256,
+            nullable: false
+        },
+
+        email: {
+            type: 'string',
+            maxlength: 254,
+            nullable: false,
+            unique: true
+        },
+
+        name: {
+            type: 'string',
+            maxlength: 150,
+            nullable: false
+        },
+
+        created_at: {
+            type: 'dateTime',
+            nullable: false
+        },
+
+        updated_at: {
+            type: 'dateTime',
+            nullable: true
+        }
     },
 
-    posts: {
-        id: {type: 'increments', nullable: false, primary: true},
-        user_id: {type: 'integer', nullable: false, unsigned: true},
-        category_id: {type: 'integer', nullable: false, unsigned: true},
-        title: {type: 'string', maxlength: 150, nullable: false},
-        slug: {type: 'string', maxlength: 150, nullable: false, unique: true},
-        html: {type: 'text', maxlength: 16777215, fieldtype: 'medium', nullable:
-               false},
-        created_at: {type: 'dateTime', nullable: false},
-        updated_at: {type: 'dateTime', nullable: true}
+    account_owner: {
+        account_id: {
+            type: 'integer',
+            unsigned: true,
+            nullable: false
+        },
+
+        user_id: {
+            type: 'integer',
+            unsigned: true,
+            nullable: false
+        }
     },
 
-    tags: {
-        id: {type: 'increments', nullable: false, primary: true},
-        slug: {type: 'string', maxlength: 150, nullable: false, unique: true},
-        name: {type: 'string', maxlength: 150, nullable: false}
-    },
+    user_account: {
+        user_id: {
+            type: 'integer',
+            unsigned: true,
+            nullable: false
+        },
 
-    posts_tags: {
-        id: {type: 'increments', nullable: false, primary: true},
-        post_id: {type: 'integer', nullable: false, unsigned: true},
-        tag_id: {type: 'integer', nullable: false, unsigned: true}
+        account_id: {
+            type: 'integer',
+            unsigned: true,
+            nullable: false
+        }
     }
 };
-module.exports = Schema;
+
+module.exports = schema;
