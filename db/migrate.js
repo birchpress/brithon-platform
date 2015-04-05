@@ -1,6 +1,6 @@
 'use strict';
 
-var sequence = require('when/sequence');
+var Promise = require('bluebird');
 var async = require('async');
 var _ = require('lodash');
 var debug = require('debug')('db:migrate');
@@ -58,12 +58,10 @@ function createTable(knex, tableName, tableDef) {
 function createTables(knex, schema) {
     var tableNames = _.keys(schema);
     var tables = _.map(tableNames, function(tableName) {
-        return function() {
-            return createTable(knex, tableName, schema[tableName]);
-        };
+        return createTable(knex, tableName, schema[tableName]);
     });
 
-    return sequence(tables);
+    return Promise.all(tables);
 }
 
 function migrate(knex) {
@@ -71,7 +69,7 @@ function migrate(knex) {
         .then(function() {
             debug('DB migration successes.');
         })
-        .otherwise(function(error) {
+        .catch(function(error) {
             debug(error.stack);
             process.exit(1);
         });
