@@ -3,6 +3,23 @@
 'use strict';
 
 var schema = {
+    schema_meta: {
+        meta_id: {
+            type: 'increments',
+            nullable: false,
+            primary: true
+        },
+        meta_key: {
+            type: 'string',
+            maxlength: 255,
+            nullable: false
+        },
+        meta_value: {
+            type: 'text',
+            fieldtype: 'mediumtext'
+        }
+    },
+
     account: {
         id: {
             type: 'increments',
@@ -12,7 +29,7 @@ var schema = {
 
         name: {
             type: 'string',
-            maxlength: 150,
+            maxlength: 127,
             nullable: false
         }
     },
@@ -26,20 +43,20 @@ var schema = {
 
         password: {
             type: 'string',
-            maxlength: 256,
+            maxlength: 255,
             nullable: false
         },
 
         email: {
             type: 'string',
-            maxlength: 254,
+            maxlength: 255,
             nullable: false,
             unique: true
         },
 
         name: {
             type: 'string',
-            maxlength: 150,
+            maxlength: 127,
             nullable: false
         },
 
@@ -61,7 +78,7 @@ var schema = {
             nullable: false
         },
 
-        user_id: {
+        owner_id: {
             type: 'integer',
             unsigned: true,
             nullable: false
