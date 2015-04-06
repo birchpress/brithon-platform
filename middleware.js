@@ -54,9 +54,7 @@ module.exports = function(req, res, next) {
 	var getShallowFiles = function(dirPath, callback) {
 		async.waterfall(
 			[
-				function(callback) {
-					fs.readdir(dirPath, callback);
-				},
+				fs.readdir.bind(fs, dirPath),
 				function(fileNames, callback) {
 					async.map(
 						fileNames,
@@ -84,9 +82,7 @@ module.exports = function(req, res, next) {
 	var loadModules = function(dirPath, callback) {
 		async.waterfall(
 			[
-				function(callback) {
-					getShallowFiles(dirPath, callback);
-				},
+				getShallowFiles.bind(null, dirPath),
 				function(files, callback) {
 					async.reduce(
 						files, [],
@@ -199,12 +195,8 @@ module.exports = function(req, res, next) {
 			});
 		});
 		if (isDev) {
-			tasks.push(function(callback) {
-				bundlePluginJavaScripts(pluginPath, callback);
-			});
-			tasks.push(function(callback) {
-				copyPluginAssets(pluginPath, callback);
-			});
+			tasks.push(bundlePluginJavaScripts.bind(null, pluginPath));
+			tasks.push(copyPluginAssets.bind(null, pluginPath));
 		}
 		async.waterfall(tasks, callback);
 	};
@@ -243,9 +235,7 @@ module.exports = function(req, res, next) {
 		});
 	};
 
-	var loadCore = function(callback) {
-		loadApp(path.join(__dirname, 'core'), callback);
-	};
+	var loadCore = loadApp.bind(null, path.join(__dirname, 'core'));
 
 	var loadCustomApps = function(appsMap, callback) {
 		var namespaces = [];
@@ -270,9 +260,7 @@ module.exports = function(req, res, next) {
 
 	async.waterfall(
 		[
-			function(callback) {
-				loadCore(callback);
-			},
+			loadCore(callback),
 			function(coreNamepaces, callback) {
 				_.forEach(coreNamepaces, function(namespace) {
 					if (_.isFunction(namespace.init)) {
@@ -281,12 +269,8 @@ module.exports = function(req, res, next) {
 				});
 				callback(null);
 			},
-			function(callback) {
-				getAppsMap(accountId, callback);
-			},
-			function(appsMap, callback) {
-				loadCustomApps(appsMap, callback);
-			},
+			getAppsMap.bind(null, accountId),
+			loadCustomApps.bind(null, appsMap),
 			function(appNamepaces, callback) {
 				_.forEach(appNamepaces, function(namespace) {
 					if (_.isFunction(namespace.init)) {
