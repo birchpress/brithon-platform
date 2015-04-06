@@ -9,6 +9,7 @@
   "dependencies": {
     "async": "^0.9.0",
     "backbone": "1.1.2",
+    "bluebird": "^2.9.24",
     "body-parser": "^1.12.2",
     "brithon-framework": "git+https://b87409649260dacb50506dc8d1fc70af19fe29ed@github.com/birchpress/brithon-framework.git",
     "browserify": "^9.0.4",
