@@ -23,20 +23,22 @@ module.exports = function(req, res, next) {
 		return {};
 	};
 
-	var getAppsMap = function(accountId) {
+	var getAppsMap = function(accountId, callback) {
 		//TODO
 		//get it from DB
 		// format {
 		// 	'appointments': '1.0',
 		// 	'{appName}': '{appVersion}'
 		// }
+		var appsMap;
 		if (req.locals.accountId) {
-			return {
+			appsMap = {
 				'sample': 'master'
 			};
 		} else {
-			return getDefaultAppsMap();
+			appsMap = getDefaultAppsMap();
 		}
+		callback(null, appsMap);
 	};
 
 	var loadModule = function(filePath) {
@@ -49,44 +51,96 @@ module.exports = function(req, res, next) {
 		}
 	};
 
-	var loadModules = function(dirPath) {
-		var namespaces = [];
-		var _loadDir = function(dirPath) {
-			var fileNames = fs.readdirSync(dirPath).filter(junk.not);
-			_.forEach(fileNames, function(fileName) {
-				var filePath = path.join(dirPath, fileName);
-				if (fs.statSync(filePath).isDirectory()) {
-					_loadDir(filePath);
-				} else if (fs.statSync(filePath).isFile()) {
-					var namespace = loadModule(filePath);
-					namespaces.push(namespace);
+	var getShallowFiles = function(dirPath, callback) {
+		async.waterfall(
+			[
+				function(callback) {
+					fs.readdir(dirPath, callback);
+				},
+				function(fileNames, callback) {
+					async.map(
+						fileNames,
+						function(fileName, callback) {
+							var filePath = path.join(dirPath, fileName);
+							fs.stat(filePath, function(err, stats) {
+								callback(err, {
+									filePath: filePath,
+									stats: stats
+								});
+							});
+						},
+						callback
+					);
 				}
-			});
-		};
-		_loadDir(dirPath);
-		return namespaces;
+			],
+			callback
+		);
 	};
 
-	var bundleTasks = [];
+	var isJsFile = function(filePath) {
+		return _.includes(['.js', '.jsx'], path.extname(filePath));
+	};
 
-	var bundleJavaScript = function(src, dest) {
-		bundleTasks.push(function(callback) {
-			var dirname = path.dirname(dest);
-			mkdirp(dirname, function(err) {
-				callback(err, dest);
-			});
-		});
-		bundleTasks.push(function(callback) {
-			var bundle = browserify(src).bundle();
-			var writable = fs.createWriteStream(dest);
-			bundle.on('error', function(err) {
-				callback(err, dest);
-			});
-			writable.on('finish', function() {
-				callback(null, dest);
-			});
-			bundle.pipe(writable);
-		});
+	var loadModules = function(dirPath, callback) {
+		async.waterfall(
+			[
+				function(callback) {
+					getShallowFiles(dirPath, callback);
+				},
+				function(files, callback) {
+					async.reduce(
+						files, [],
+						function(namespaces, file, callback) {
+							if (file.stats.isDirectory()) {
+								loadModules(file.filePath, function(err, newNamespaces) {
+									callback(namespaces.concat(newNamespaces));
+								});
+							} else {
+								try {
+									if (isJsFile(file.filePath)) {
+										var namespace = loadModule(file.filePath);
+										namespaces.push(namespace);
+									}
+									callback(null, namespaces);
+								} catch (ex) {
+									callback(ex, namespaces);
+								}
+							}
+						},
+						callback
+					);
+				}
+			],
+			callback
+		);
+	};
+
+	var bundleJavaScript = function(src, dest, callback) {
+		if (!isJsFile(src)) {
+			return;
+		}
+		async.series(
+			[
+				function(callback) {
+					var dirname = path.dirname(dest);
+					mkdirp(dirname, function(err) {
+						callback(err, dest);
+					});
+				},
+				function(callback) {
+					var bundle = browserify(src).bundle();
+					var writable = fs.createWriteStream(dest);
+					bundle.on('error', function(err) {
+						callback(err, dest);
+					});
+					writable.on('finish', function() {
+						callback(null, dest);
+					});
+					bundle.pipe(writable);
+				}
+			],
+			callback
+		);
 	};
 
 	var getPluginPublicPath = function(pluginPath) {
@@ -94,116 +148,161 @@ module.exports = function(req, res, next) {
 		return path.join(__dirname, 'public', relative);
 	};
 
-	var bundlePluginJavaScripts = function(pluginPath) {
-		var srcDir = pluginPath;
-		var fileNames = fs.readdirSync(srcDir).filter(junk.not);
-		_.forEach(fileNames, function(fileName) {
-			var filePath = path.join(srcDir, fileName);
-			if (fs.statSync(filePath).isFile()) {
-				var pluginPublicPath = getPluginPublicPath(pluginPath);
-				var desPath = path.join(pluginPublicPath, fileName);
-				bundleJavaScript(filePath, desPath);
-			}
+	var bundlePluginJavaScripts = function(pluginPath, callback) {
+		getShallowFiles(pluginPath, function(err, files) {
+			async.each(
+				files,
+				function(file, callback) {
+					if (file.stats.isFile()) {
+						var desPath = getPluginPublicPath(file.filePath);
+						bundleJavaScript(file.filePath, desPath, callback);
+					}
+				},
+				callback
+			);
 		});
 	};
 
-	var copyAssetsTasks = [];
-
-	var copyPluginAssets = function(pluginPath) {
+	var copyPluginAssets = function(pluginPath, callback) {
 		var srcDir = path.join(pluginPath, 'assets');
 		var pluginPublicPath = getPluginPublicPath(pluginPath);
 		var destDir = path.join(pluginPublicPath, 'assets');
-		var task = function(callback) {
-			fse.copy(srcDir, destDir, function(err) {
-				if (err) {
-					console.warn('Failded copying assets from ' + srcDir + ' to ' + destDir);
-					console.warn(err.message);
-				}
-				callback(null, destDir);
-			});
-		};
-		copyAssetsTasks.push(task);
+		fse.copy(srcDir, destDir, function(err) {
+			if (err) {
+				console.warn('Failded copying assets from ' + srcDir + ' to ' + destDir);
+				console.warn(err.message);
+			}
+			callback(null, destDir);
+		});
 	};
 
 	var isDev = function() {
 		return req.app.locals.config.get('env') === 'development';
 	};
 
-	var loadPlugin = function(pluginPath) {
+	var loadPlugin = function(pluginPath, callback) {
 		var serverDir = path.join(pluginPath, 'server');
-		var namespaces = [];
-		if (fs.statSync(serverDir).isDirectory()) {
-			namespaces = loadModules(serverDir);
-		}
-		if (isDev()) {
-			bundlePluginJavaScripts(pluginPath);
-			copyPluginAssets(pluginPath);
-		}
-		return namespaces;
-	};
 
-	var loadApp = function(appPath) {
-		var namespaces = [];
-		try {
-			if (fs.statSync(appPath).isDirectory()) {
-				var pluginNames = fs.readdirSync(appPath).filter(junk.not);
-				_.forEach(pluginNames, function(pluginName) {
-					var pluginPath = path.join(appPath, pluginName);
-					if (fs.statSync(pluginPath).isDirectory()) {
-						var pluginNamespaces = loadPlugin(pluginPath);
-						namespaces = namespaces.concat(pluginNamespaces);
+		var tasks = [];
+		tasks.push(function(callback) {
+			fs.stat(serverDir, function(err, stats) {
+				if (err) {
+					callback(err, []);
+				} else {
+					if (stats.isDirectory) {
+						loadModules(serverDir, callback);
+					} else {
+						console.warn("Plugin's server folder " + pluginPath + " is not found.");
+						callback(null, []);
 					}
-				});
-			}
-		} catch (ex) {
-			console.error('Failed to load app from path ' + appPath);
-			console.error(ex.message);
-		}
-		return namespaces;
-	};
-
-	var loadCore = function() {
-		return loadApp(path.join(__dirname, 'core'));
-	};
-
-	var loadCustomApps = function(appsMap) {
-		var namespaces = [];
-		_.forEach(appsMap, function(version, appName) {
-			var appPath = path.join(__dirname, 'apps', appName, version);
-			var appNamepaces = loadApp(appPath);
-			namespaces = namespaces.concat(appNamepaces);
+				}
+			});
 		});
-		return namespaces;
+		if (isDev) {
+			tasks.push(function(callback) {
+				bundlePluginJavaScripts(pluginPath, callback);
+			});
+			tasks.push(function(callback) {
+				copyPluginAssets(pluginPath, callback);
+			});
+		}
+		async.waterfall(tasks, callback);
+	};
+
+	var loadApp = function(appPath, callback) {
+		fs.stat(appPath, function(err, stats) {
+			if (err) {
+				console.error('Failed to load app from path ' + appPath);
+				console.error(ex.message);
+				callback(null, []);
+				return;
+			}
+			if (stats.isDirectory) {
+				getShallowFiles(appPath, function(err, files) {
+					async.map(
+						files,
+						function(file, callback) {
+							if (file.stats.isDirectory()) {
+								loadPlugin(file.filePath, callback);
+							} else {
+								callback(null, []);
+							}
+						},
+						function(err, result) {
+							var namespaces = _.reduce(result, function(merged, value) {
+								return merged.concat(value);
+							});
+							callback(err, namespaces);
+						}
+					);
+				});
+			} else {
+				console.error('App path ' + appPath + " is not found.");
+				callback(null, []);
+			}
+		});
+	};
+
+	var loadCore = function(callback) {
+		loadApp(path.join(__dirname, 'core'), callback);
+	};
+
+	var loadCustomApps = function(appsMap, callback) {
+		var namespaces = [];
+		async.reduce(
+			_.keys(appsMap), [],
+			function(namespaces, appName, callback) {
+				var version = appsMap[appName];
+				var appPath = path.join(__dirname, 'apps', appName, version);
+				loadApp(appPath, function(err, newNamespaces) {
+					callback(err, namespaces.concat(newNamespaces));
+				});
+			},
+			callback
+		);
 	};
 
 	var handleErrors = function(req, res, err) {
 		requestBrithon.core.common.server.handleErrors(err);
 	};
 
-	var coreNamepaces = loadCore();
 	var accountId = req.locals.accountId;
-	var appsMap = getAppsMap(accountId);
-	var appNamepaces = loadCustomApps(appsMap);
 
-	_.forEach(coreNamepaces, function(namespace) {
-		if (_.isFunction(namespace.init)) {
-			namespace.init();
+	async.waterfall(
+		[
+			function(callback) {
+				loadCore(callback);
+			},
+			function(coreNamepaces, callback) {
+				_.forEach(coreNamepaces, function(namespace) {
+					if (_.isFunction(namespace.init)) {
+						namespace.init();
+					}
+				});
+				callback(null);
+			},
+			function(callback) {
+				getAppsMap(accountId, callback);
+			},
+			function(appsMap, callback) {
+				loadCustomApps(appsMap, callback);
+			},
+			function(appNamepaces, callback) {
+				_.forEach(appNamepaces, function(namespace) {
+					if (_.isFunction(namespace.init)) {
+						namespace.init();
+					}
+				});
+				callback(null);
+			}
+		],
+		function(err, result) {
+			if (err) {
+				console.error(err.message);
+			}
+			requestBrithon.router.dispatch(req, res, function(err) {
+				handleErrors(req, res, err);
+			});
 		}
-	});
-	_.forEach(appNamepaces, function(namespace) {
-		if (_.isFunction(namespace.init)) {
-			namespace.init();
-		}
-	});
-
-	var allTasks = [].concat(bundleTasks).concat(copyAssetsTasks);
-
-	async.series(allTasks, function(err, results) {
-		if (err) {
-			console.error(err.message);
-		}
-		requestBrithon.router.dispatch(req, res, function(err) {
-			handleErrors(req, res, err);
-		});
-	});
+	);
 };
