@@ -151,15 +151,15 @@ module.exports = function(req, res, next) {
 				}
 			})
 			.then(function(namespaces) {
-				var tasks = [];
 				if (isDev()) {
-					tasks.concat([
-						bundlePluginJavaScriptsAsync(pluginPath),
-						copyPluginAssetsAsync(pluginPath)
-					]);
+					return bundlePluginJavaScriptsAsync(pluginPath)
+						.then(function() {
+							return copyPluginAssetsAsync(pluginPath)
+						})
+						.return(namespaces);
+				} else {
+					return namespaces;
 				}
-				return Promise.all(tasks)
-					.return(namespaces);
 			})
 	};
 
@@ -203,9 +203,6 @@ module.exports = function(req, res, next) {
 	var accountId = req.locals.accountId;
 
 	loadCoreAsync()
-		.then(function(namespaces) {
-			return Promise.all(namespaces);
-		})
 		.each(function(namespace) {
 			if (namespace && _.isFunction(namespace.init)) {
 				namespace.init();
@@ -222,12 +219,25 @@ module.exports = function(req, res, next) {
 				namespace.init();
 			}
 		})
-		.then(function() {
-			var dispatchAsync = Promise.promisify(requestBrithon.router.dispatch, requestBrithon.router);
-			return dispatchAsync(req, res);
-		})
+		.return(true)
 		.catch(function(e) {
-			handleErrors(e);
+			return Promise.try(function() {
+				if(isDev()) {
+					res.status(500).send(e.message + "<br />" + e.stack);
+				} else {
+					res.status(500).send('A Fancy 500 page.');
+				}
+				return false;
+			});
+		})
+		.then(function(loaded) {
+			if (loaded) {
+				var dispatchAsync = Promise.promisify(requestBrithon.router.dispatch, requestBrithon.router);
+				return dispatchAsync(req, res).catch(function(e) {
+					handleErrors(e);
+				});
+
+			}
 		});
 
 };
