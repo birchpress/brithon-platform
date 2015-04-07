@@ -116,7 +116,7 @@ module.exports = function(req, res, next) {
 
 	var bundlePluginJavaScriptsAsync = function(pluginPath) {
 		return getShallowFilesAsync(pluginPath)
-			.filter(function(file){
+			.filter(function(file) {
 				return isJsFile(file.filePath);
 			})
 			.each(function(file) {
@@ -144,24 +144,23 @@ module.exports = function(req, res, next) {
 	var loadPluginAsync = function(pluginPath) {
 		var serverDir = path.join(pluginPath, 'server');
 
-		return Promise.try(function() {
-				if (isDev()) {
-					return bundlePluginJavaScriptsAsync(pluginPath);
-				}
-			})
-			.then(function() {
-				if (isDev()) {
-					return copyPluginAssetsAsync(pluginPath);
-				}
-			})
-			.then(function() {
-				return fs.statAsync(serverDir);
-			})
+		return fs.statAsync(serverDir)
 			.then(function(stats) {
 				if (stats && stats.isDirectory()) {
 					return loadModulesAsync(serverDir);
 				}
-			});
+			})
+			.then(function(namespaces) {
+				var tasks = [];
+				if (isDev()) {
+					tasks.concat([
+						bundlePluginJavaScriptsAsync(pluginPath),
+						copyPluginAssetsAsync(pluginPath)
+					]);
+				}
+				return Promise.all(tasks)
+					.return(namespaces);
+			})
 	};
 
 	var loadAppAsync = function(appPath) {
@@ -197,7 +196,7 @@ module.exports = function(req, res, next) {
 			}, []);
 	};
 
-	var handleErrors = function(req, res, err) {
+	var handleErrors = function(err) {
 		requestBrithon.core.common.server.handleErrors(err);
 	};
 
@@ -226,5 +225,9 @@ module.exports = function(req, res, next) {
 		.then(function() {
 			var dispatchAsync = Promise.promisify(requestBrithon.router.dispatch, requestBrithon.router);
 			return dispatchAsync(req, res);
+		})
+		.catch(function(e) {
+			handleErrors(e);
 		});
+
 };
