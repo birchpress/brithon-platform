@@ -7,7 +7,6 @@ var _ = require('lodash');
 var director = require('director');
 var browserify = require('browserify');
 var fse = Promise.promisifyAll(require('fs-extra'));
-var async = require('async');
 var junk = require('junk');
 var mkdirp = require('mkdirp');
 var BrithonFramework = require('brithon-framework');
@@ -222,7 +221,7 @@ module.exports = function(req, res, next) {
 		.return(true)
 		.catch(function(e) {
 			return Promise.try(function() {
-				if(isDev()) {
+				if (isDev()) {
 					res.status(500).send(e.message + "<br />" + e.stack);
 				} else {
 					res.status(500).send('A Fancy 500 page.');
@@ -233,9 +232,15 @@ module.exports = function(req, res, next) {
 		.then(function(loaded) {
 			if (loaded) {
 				var dispatchAsync = Promise.promisify(requestBrithon.router.dispatch, requestBrithon.router);
-				return dispatchAsync(req, res).catch(function(e) {
-					handleErrors(e);
-				});
+				return dispatchAsync(req, res)
+					.then(function() {
+						if (_.isObject(res.locals.promise)) {
+							return res.locals.promise;
+						}
+					})
+					.catch(function(e) {
+						handleErrors(e);
+					});
 
 			}
 		});

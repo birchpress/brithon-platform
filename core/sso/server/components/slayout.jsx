@@ -46,6 +46,8 @@ var getClassMarkup = function (context) {
                 <script src="//cdnjs.cloudflare.com/ajax/libs/parsley.js/2.0.7/parsley.min.js"></script>
                 <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.13.1/react-with-addons.js"></script>
 
+                <script src="/public/lib/brithon-framework.js"></script>
+
                 { context.foot }
             </body>
         </html>
