@@ -16,7 +16,7 @@ module.exports = function(brithon) {
 		},
 
 		demo: function() {
-			res.locals.promise = Promise.try(function() {
+			return Promise.try(function() {
 				var html = brithon.core.demo.server.views.getPage();
 				res.set('Content-Type', 'text/html');
 				res.status('200').send(html);

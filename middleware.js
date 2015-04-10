@@ -10,16 +10,46 @@ var fse = Promise.promisifyAll(require('fs-extra'));
 var junk = require('junk');
 var mkdirp = require('mkdirp');
 var BrithonFramework = require('brithon-framework');
-
+var util = require('util');
 var mkdirpAsync = Promise.promisify(mkdirp);
 
 module.exports = function(req, res, next) {
+
+	var Router = function() {
+		director.http.Router.apply(this, arguments);
+	};
+
+	util.inherits(Router, director.http.Router);
+
+	var toPromiseFn = function(fn) {
+		return function() {
+			var newFn = Promise.method(fn);
+			res.locals.promise = newFn.apply(null, arguments);
+		}
+	}
+
+	Router.prototype.on = function(method, path) {
+		var args = Array.prototype.slice.call(arguments, 2);
+		var route = args.pop();
+		var newRoute = route;
+		if (_.isArray(route)) {
+			var newRoute = _.map(route, function(fn) {
+				return toPromiseFn(fn);
+			})
+		} else
+		if (_.isFunction(route)) {
+			var newRoute = toPromiseFn(route);
+		}
+		var newArgs = [method, path, newRoute].concat(args);
+
+		director.http.Router.prototype.on.apply(this, newArgs);
+	};
 
 	var requestBrithon = BrithonFramework.newInstance();
 	req.locals.requestBrithon = requestBrithon;
 	requestBrithon.request = req;
 	requestBrithon.response = res;
-	requestBrithon.router = new director.http.Router();
+	requestBrithon.router = new Router();
 	requestBrithon.knex = req.locals.knex;
 
 	var getDefaultAppsMap = function() {
